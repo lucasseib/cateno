@@ -1,0 +1,9 @@
+# Pastas do PyInstaller
+build/
+dist/
+
+# Arquivos de configuração do PyInstaller
+*.spec
+
+# Pastas temporárias do Python
+__pycache__/
