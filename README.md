@@ -73,6 +73,8 @@ Se você não é desenvolvedor e quer apenas usar a ferramenta, disponibilizo du
 ⚠️ **ATENÇÃO:** Nunca arraste o arquivo `Cateno.exe` para fora da sua pasta original! Ele precisa ficar sempre ao lado da pasta `_internal` para funcionar corretamente (ali está o "motor" do programa). 
 Se quiser um ícone na sua Área de Trabalho, clique com o botão direito no `Cateno.exe`, escolha **"Criar atalho"** e mova apenas o atalho criado.
 
+⚠️ **Aviso de Segurança do Windows:** Como este é um aplicativo independente e sem assinatura digital corporativa, o Windows (SmartScreen) exibirá uma tela azul dizendo *"O Windows protegeu o seu computador"* na primeira vez que você abri-lo. Isso é normal! Para prosseguir, clique em **"Mais informações"** e depois no botão **"Executar assim mesmo"**.
+
 
 ## 💻 Como rodar o código-fonte
 
