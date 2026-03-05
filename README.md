@@ -85,12 +85,17 @@ Se você é desenvolvedor e quer rodar pelo terminal ou editar o código:
    git clone [https://github.com/lucasseib/cateno.git](https://github.com/lucasseib/cateno.git)
    ```
 
-2. Instale as dependências:
+2. Entre na pasta do projeto:
+   ```bash
+   cd cateno
+   ```
+
+3. Instale as dependências:
    ```bash
    pip install customtkinter pyperclip
    ```
 
-3. Execute o aplicativo:
+4. Execute o aplicativo:
    ```bash
    python Cateno.py
    ```
