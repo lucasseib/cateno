@@ -82,7 +82,7 @@ Se você é desenvolvedor e quer rodar pelo terminal ou editar o código:
 
 1. Clone o repositório:
    ```bash
-   git clone [https://github.com/lucasseib/cateno.git](https://github.com/lucasseib/cateno.git)
+   git clone https://github.com/lucasseib/cateno.git
    ```
 
 2. Entre na pasta do projeto:
