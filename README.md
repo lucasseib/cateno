@@ -80,7 +80,7 @@ Se você é desenvolvedor e quer rodar pelo terminal ou editar o código:
 
 1. Clone o repositório:
    ```bash
-   git clone [https://github.com/Lucas-Seib/cateno.git](https://github.com/Lucas-Seib/cateno.git)
+   git clone [https://github.com/lucasseib/cateno.git](https://github.com/lucasseib/cateno.git)
    ```
 
 2. Instale as dependências:
