@@ -25,10 +25,25 @@ except:
 ctk.set_appearance_mode("dark") # ativa o modo escuro, podendo ser "dark", "light" ou "system"
 ctk.set_default_color_theme("blue") # Tema padrão dos botões (não é considerado pois a cor foi definida na próxima função)
 
+
 # --- 1. Variáveis Globais
 # Ela fica fora das funções para que todas elas possam exergá-la
 resultado_completo_sql = ""
 modo_atual = "varchar"  # O programa sempre vai abrir com o modo varchar ativado
+
+# --- Configurações Independentes para cada modo de formatação
+configuracoes = {
+    "varchar": {
+        "separador": ",",
+        "espaco_apos_separador": True,
+        "fechar_parenteses": True,
+    },
+    "virgula": {
+            "separador": ",",
+            "espaco_apos_separador": True,
+            "fechar_parenteses": True,
+}
+}
 
 def alterar_modo(novo_modo):
     global modo_atual
@@ -102,16 +117,31 @@ def processar_e_formatar():
         # REGRA 2: Sem aspas
         itens_formatados = [f"{item}" for item in itens_limpos]
 
-    resultado_completo_sql = "(" + ", ".join(itens_formatados) + ")" # Junta tudo com vírgula, espaço e coloca os parênteses (usado nos dois modos)
+    # Consulta as configurações do modo selecionado
+    config_atual = configuracoes[modo_atual]
+
+    # Monta o separador com ou sem espaço adicional
+    separador = config_atual["separador"]
+
+    if config_atual["espaco_apos_separador"]:
+        separador += " "
+
+    # Une os valores usando o separador configurado
+    resultado_completo_sql = separador.join(itens_formatados)
+
+    # Adiciona parênteses quando essa opção estiver ativada
+    if config_atual["fechar_parenteses"]:
+        resultado_completo_sql = "(" + resultado_completo_sql + ")"
 
     # 5. Cria o PREVIEW (8 itens)
     preview_itens = itens_formatados[:8]
-    resumo = "(" + ", ".join(preview_itens)
+    resumo = separador.join(preview_itens)
 
     if len (itens_formatados) > 8:
-        resumo += ", ..." # Adiciona as reticências quando tiver mais de 8 códigos
+        resumo += separador + "..." # Adiciona as reticências quando tiver mais de 8 códigos
 
-    resumo += ")"
+    if config_atual["fechar_parenteses"]:
+        resumo = "(" + resumo + ")"
 
     # 6. Limpa o campo de texto e escreve o resumo
     campo_texto.configure(state='normal')  # Destranca o campo para o Python poder escrever
@@ -151,11 +181,133 @@ def minimizar_ao_perder_foco(event):
     
     janela.after(200, checar_foco) #.after diz pra esperar o tempo escrito (200 milissegundos) antes de checar
 
+def ativar_minimizacao(event):
+    # Ignora eventos recebidos por componentes internos
+    if event.widget != janela:
+        return
+
+    # Ativa a minimização após a janela receber foco
+    janela.bind("<FocusOut>", minimizar_ao_perder_foco)
+
+    # Remove apenas este vínculo de ativação
+    janela.unbind("<FocusIn>", vinculo_ativacao_minimizacao)
+
+
+#---------------------------------NAVEGAÇÃO ENTRE TELAS--------------------------------------#
+
+def ajustar_foco_configuracoes(event):
+    componente = event.widget
+
+    # Percorre o componente clicado e seus conteineres
+    while componente is not None:
+        # Se o clique foi dentro de um campo, mantém a edição
+        if isinstance(componente, ctk.CTkEntry):
+            return
+
+        # Se chegou a tela sem encontrar um campo, retira o foco
+        if componente == tela_configuracoes:
+            tela_configuracoes.focus_set()
+            return
+
+        componente = getattr(componente, "master", None)
+
+def abrir_configuracoes():
+    tela_principal.pack_forget()
+    janela.geometry("350x420")
+    tela_configuracoes.pack(fill="both", expand=True)
+    tela_configuracoes.focus_set()
+
+def voltar_para_principal():
+    # Restaura o separador salvo do Varchar    
+    campo_separador_varchar.delete(0, "end")
+    campo_separador_varchar.insert(
+        0,
+        configuracoes["varchar"]["separador"],
+    )
+
+    # Restaura a opção salva de espaço do Int
+    if configuracoes["virgula"]["espaco_apos_separador"]:
+        opcao_espaco_int.select()
+    else:
+        opcao_espaco_int.deselect()
+
+    # Restaura a opção salva de parênteses do Int
+    if configuracoes["virgula"]["fechar_parenteses"]:
+        opcao_parenteses_int.select()
+    else:
+        opcao_parenteses_int.deselect()
+
+    # Restaura a opção salva de espaço do Varchar
+    if configuracoes["varchar"]["espaco_apos_separador"]:
+        opcao_espaco_varchar.select()
+    else:
+        opcao_espaco_varchar.deselect()
+
+    # Restaura a opção salva de parênteses do Varchar
+
+    if configuracoes["varchar"]["fechar_parenteses"]:
+        opcao_parenteses_varchar.select()
+    else:
+        opcao_parenteses_varchar.deselect()
+
+    # Restaura o separador salvo do Int
+    campo_separador_int.delete(0, "end")
+    campo_separador_int.insert(
+        0,
+        configuracoes["virgula"]["separador"],
+    )
+
+    # Retorna à tela principal
+    tela_configuracoes.pack_forget()
+    janela.geometry("350x220")
+    tela_principal.pack(fill="both", expand=True)
+
+#---------------------------------SALVAR--------------------------------------# 
+
+def salvar_configuracoes():
+    # Salva as configurações do Varchar
+    configuracoes["varchar"]["separador"] = (
+        campo_separador_varchar.get() or ","
+    )
+    configuracoes["varchar"]["espaco_apos_separador"] = (
+        opcao_espaco_varchar.get() == 1
+    )
+    configuracoes["varchar"]["fechar_parenteses"] = (
+        opcao_parenteses_varchar.get() == 1
+    )
+
+    #Salva as configurações do Int
+    configuracoes["virgula"]["separador"] = (
+        campo_separador_int.get() or ","
+    )
+    configuracoes["virgula"]["espaco_apos_separador"] = (
+        opcao_espaco_int.get() == 1
+    )
+    configuracoes["virgula"]["fechar_parenteses"] = (
+        opcao_parenteses_int.get() == 1
+    )
+
+    # Limpa o resultado produzido com as configurações anteriores
+    limpar_tudo()
+
+    # Atualiza os campos com os valores salvos e retorna à principal
+    voltar_para_principal()
+
+
 #---------------------------------INTERFACE VISUAL--------------------------------------# 
 
 def criar_interface():
     
     global campo_texto, janela, btn_aba_varchar, btn_aba_virgula
+    global tela_principal, tela_configuracoes
+    global campo_separador_varchar
+    global campo_separador_int
+    global opcao_espaco_int
+    global opcao_parenteses_int
+    global opcao_espaco_varchar
+    global opcao_parenteses_varchar
+    global vinculo_ativacao_minimizacao
+
 
     # 1. Cria a janela principal
     janela = ctk.CTk()                    # abre o processo da janela no windows
@@ -182,30 +334,25 @@ def criar_interface():
 
 #---------------------------------CALCULO MONITOR--------------------------------------#
 
-    janela.update() # força o CustomTkinter a desenhar e ler o tamanho do monitor
-
-    largura_monitor = janela.winfo_screenwidth()
-    altura_monitor = janela.winfo_screenheight()
-
     largura_app = 350
-    altura_app = 175
+    altura_app = 220
 
-    # Cálculo para deixar a janela no canto inferior direito
-    x = largura_monitor - largura_app - 110
-    y = altura_monitor - altura_app - 155
-
-    janela.geometry(f"{largura_app}x{altura_app}+{x}+{y}")
-
+    # Define o tamanho; a posição será calculada após montar a janela
+    janela.geometry(f"{largura_app}x{altura_app}")
+    
 #--------------------------------------------------------------------------------------#
 
-    janela.bind("<FocusOut>", minimizar_ao_perder_foco)  # diz: se a janela perder o foco, execute a função minimizar_ao_perder_foco
+    # janela.bind("<FocusOut>", minimizar_ao_perder_foco)  # diz: se a janela perder o foco, execute a função minimizar_ao_perder_foco
 
     # Deixar a janela sempre visivel 
-    #janela.attributes('-topmost', True)
+    # janela.attributes('-topmost', True)
+
+    tela_principal = ctk.CTkFrame(janela, fg_color="transparent")
+    tela_principal.pack(fill="both", expand= True)
 
 #---------------------------------ABAS SUPERIORES--------------------------------------#
   
-    frame_abas = ctk.CTkFrame(janela, fg_color="transparent") # transparent faz o frame sumir e misturar com o fundo da janela
+    frame_abas = ctk.CTkFrame(tela_principal, fg_color="transparent") # transparent faz o frame sumir e misturar com o fundo da janela
     frame_abas.pack(pady=(15, 0)) # significa: (cima, baixo)
 
     btn_aba_varchar = ctk.CTkButton(frame_abas, text="('varchar',)", width=147, height=28, corner_radius=8,
@@ -221,7 +368,7 @@ def criar_interface():
     #---------------------------------CAMPO TEXTO--------------------------------------#
 
     # Campo que permite várias linhas
-    campo_texto = ctk.CTkTextbox(janela, width=305, height= 55, state='disabled', 
+    campo_texto = ctk.CTkTextbox(tela_principal, width=305, height= 55, state='disabled', 
                                  fg_color="#393939", text_color="#F1FFBE", corner_radius=8, # backup fg_color light #e0e6ed  text 2F5600'
                                 font=("Consolas", 13))
     campo_texto.pack(pady=(15, 0), padx=10) # pack () posiciona o elemento na tela, posiciona um embaixo do outro. pady é o espaço (padding) vertical 
@@ -229,7 +376,7 @@ def criar_interface():
     #---------------------------------BOTÕES INFERIORES--------------------------------------#
 
     # Organiza os botões lado a lado
-    frame_botoes = ctk.CTkFrame(janela, fg_color="transparent")
+    frame_botoes = ctk.CTkFrame(tela_principal, fg_color="transparent")
     frame_botoes.pack(pady=(15, 15))
 
     # Botão 1: Colar
@@ -253,9 +400,289 @@ def criar_interface():
                                command=limpar_tudo)
     btn_limpar.pack(side="left", padx=5)
 
+    # Acesso as configurações na tela principal
+    btn_configuracoes = ctk.CTkButton(
+        tela_principal,
+        text="⚙",
+        width=30,
+        height=28,
+        font=("Segoe UI Symbol", 20),
+        fg_color="transparent",
+        hover_color="#393939",
+        command=abrir_configuracoes,
+    )
+    btn_configuracoes.pack(side="right", padx=15, pady=(0, 10))
+
+    # Segunda tela: criada agora, mas exibida apenas quando clicar na engrenagem
+
+    tela_configuracoes = ctk.CTkFrame(
+        janela,
+        fg_color="transparent",
+    )
+
+    titulo_configuracoes = ctk.CTkLabel(
+        tela_configuracoes,
+        text="Varchar",
+        font=("Inter",16)
+    )
+    titulo_configuracoes.pack(anchor="e", padx=15, pady=(15, 0))
+
+    # Linha da configuração de separador do Varchar
+    linha_separador_varchar = ctk.CTkFrame(
+        tela_configuracoes,
+        fg_color="transparent",
+    )
+    linha_separador_varchar.pack(fill="x", padx=15, pady=(15, 0))
+
+    rotulo_separador_varchar = ctk.CTkLabel(
+        linha_separador_varchar,
+        text="Separador:",
+        font=("Inter", 13),
+    )
+    rotulo_separador_varchar.pack(side="left")
+
+    campo_separador_varchar = ctk.CTkEntry(
+        linha_separador_varchar,
+        width=100,
+        font=("Inter", 13),
+    )
+    campo_separador_varchar.pack(side="right")
+
+    campo_separador_varchar.insert(
+        0,
+        configuracoes["varchar"]["separador"],
+    )
+
+    # Linha da configuração de espaço do Varchar
+
+    linha_espaco_varchar = ctk.CTkFrame(
+        tela_configuracoes,
+        fg_color="transparent",
+    )
+    linha_espaco_varchar.pack(fill="x", padx=15, pady=(10, 0))
+
+    rotulo_espaco_varchar = ctk.CTkLabel(
+        linha_espaco_varchar,
+        text="Espaço após o separador",
+        font=("Inter", 13),
+    )
+    rotulo_espaco_varchar.pack(side="left")
+
+    opcao_espaco_varchar = ctk.CTkCheckBox(
+        linha_espaco_varchar,
+        text="",
+        width=24,
+        checkbox_width=24,
+        checkbox_height=24,
+        fg_color="#9db64a",
+        hover_color="#839738",
+    )
+    opcao_espaco_varchar.pack(side="right")
+
+    if configuracoes["varchar"]["espaco_apos_separador"]:
+        opcao_espaco_varchar.select()
+    else:
+        opcao_espaco_varchar.deselect()
+
+    # Linha da configuração de parênteses do Varchar
+
+    linha_parenteses_varchar = ctk.CTkFrame(
+        tela_configuracoes,
+        fg_color="transparent"
+    )
+    linha_parenteses_varchar.pack(fill="x", padx=15, pady=(10, 0))
+
+    rotulo_parenteses_varchar = ctk.CTkLabel(
+        linha_parenteses_varchar,
+        text="Resultado fechado ( )",
+        font=("Inter", 13),
+    )
+    rotulo_parenteses_varchar.pack(side="left")
+
+    opcao_parenteses_varchar = ctk.CTkCheckBox(
+        linha_parenteses_varchar,
+        text="",
+        width=24,
+        checkbox_width=24,
+        checkbox_height=24,
+        fg_color="#9db64a",
+        hover_color="#839738",
+    )
+    opcao_parenteses_varchar.pack(side="right")
+
+    if configuracoes["varchar"]["fechar_parenteses"]:
+        opcao_parenteses_varchar.select()
+    else:
+        opcao_parenteses_varchar.deselect()
+
+    # Início das configurações do Int
+    titulo_int = ctk.CTkLabel(
+        tela_configuracoes,
+        text="Int",
+        font=("Inter", 16),
+    )
+    titulo_int.pack(anchor="e", padx=15, pady=(20, 0))
+
+    # Linha da configuração de separador do Int
+    linha_separador_int = ctk.CTkFrame(
+        tela_configuracoes,
+        fg_color="transparent",
+    )
+    linha_separador_int.pack(fill="x", padx=15, pady=(15, 0))
+
+    rotulo_separador_int = ctk.CTkLabel(
+        linha_separador_int,
+        text="Separador:",
+        font=("Inter", 13),
+    )
+    rotulo_separador_int.pack(side="left")
+
+    campo_separador_int = ctk.CTkEntry(
+        linha_separador_int,
+        width=100,
+        font=("Inter", 13),
+    )
+    campo_separador_int.pack(side="right")
+
+    campo_separador_int.insert(
+        0,
+        configuracoes["virgula"]["separador"],
+    )
+
+    # Linha da configuração de espaço do Int
+    linha_espaco_int = ctk.CTkFrame(
+        tela_configuracoes,
+        fg_color="transparent",
+    )
+    linha_espaco_int.pack(fill="x", padx=15, pady=(10, 0))
+
+    rotulo_espaco_int = ctk.CTkLabel(
+        linha_espaco_int,
+        text="Espaço após o separador",
+        font=("Inter", 13),
+    )
+    rotulo_espaco_int.pack(side="left")
+
+    opcao_espaco_int = ctk.CTkCheckBox(
+        linha_espaco_int,
+        text="",
+        width=24,
+        checkbox_width=24,
+        checkbox_height=24,
+        fg_color="#9db64a",
+        hover_color="#839738",
+    )
+    opcao_espaco_int.pack(side="right")
+
+    if configuracoes["virgula"]["espaco_apos_separador"]:
+        opcao_espaco_int.select()
+    else:
+        opcao_espaco_int.deselect()
+
+    # Linha da configuração de parênteses do Int
+    linha_parenteses_int = ctk.CTkFrame(
+        tela_configuracoes,
+        fg_color="transparent",
+    )
+    linha_parenteses_int.pack(fill="x", padx=15, pady=(10, 0))
+
+    rotulo_parenteses_int = ctk.CTkLabel(
+        linha_parenteses_int,
+        text="Resultado fechado ( )",
+        font=("Inter", 13),
+    )
+    rotulo_parenteses_int.pack(side="left")
+
+    opcao_parenteses_int = ctk.CTkCheckBox(
+        linha_parenteses_int,
+        text="",
+        width=24,
+        checkbox_width=24,
+        checkbox_height=24,
+        fg_color="#9db64a",
+        hover_color="#839738",
+    )
+    opcao_parenteses_int.pack(side="right")
+
+    if configuracoes["virgula"]["fechar_parenteses"]:
+        opcao_parenteses_int.select()
+    else:
+        opcao_parenteses_int.deselect()
+
+    # Rodapé da tela de Configurações
+
+    rodape_configuracoes = ctk.CTkFrame(
+        tela_configuracoes,
+        fg_color="transparent",
+    )
+    rodape_configuracoes.pack(side="bottom", fill="x", padx=15, pady=10)
+
+    btn_salvar = ctk.CTkButton(
+        rodape_configuracoes,
+        text="Salvar",
+        width=95,
+        height=28,
+        font=("Inter SemiBold", 13),
+        fg_color="#9db64a",
+        hover_color="#839738",
+        command=salvar_configuracoes,
+    )
+    btn_salvar.pack(side="left")
+
+    btn_voltar = ctk.CTkButton(
+        rodape_configuracoes,
+        text="←",
+        width=30,
+        height=28,
+        font=("Segoe UI Symbol", 20),
+        fg_color="transparent",
+        hover_color="#393939",
+        command=voltar_para_principal,
+    )
+    btn_voltar.pack(side="right")
+
+    # Trata cliques fora dos campos na tela de configuracoes 
+
+    janela.bind(
+        "<Button-1>",
+        ajustar_foco_configuracoes,
+        add="+",
+    )
+
     alterar_modo("varchar") # força atualização para o modo padrão ao abrir o programa
 
-    janela.deiconify()  # revela a janela pronta e no lugar certo
+    # Mantém a janela transparente enquanto calcula sua posição
+    
+    janela.attributes("-alpha", 0.0)
+    janela.deiconify()
+    janela.update()
+
+    # Mede as bordas e a barra de título do Windows
+    borda = janela.winfo_rootx() - janela.winfo_x()
+    topo = janela.winfo_rooty() - janela.winfo_y()
+
+    # Mede o tamanho total da janela, considerando a escala
+    largura_real = janela.winfo_width() + (2 * borda)
+    altura_real = janela.winfo_height() + topo + borda
+
+    # Calcula o centro da tela
+    x = (janela.winfo_screenwidth() - largura_real) // 2
+    y = (janela.winfo_screenheight() - altura_real) // 2
+
+    # Aplica a posição antes de tornar a janela visível
+    janela.geometry(f"+{x}+{y}")
+    janela.update_idletasks()
+
+    # Prepara a ativação da minimização ao receber foco
+    vinculo_ativacao_minimizacao = janela.bind(
+        "<FocusIn>",
+        ativar_minimizacao,
+        add="+",
+    )
+
+    # Revela a janela pronta e direciona o foco para ela
+    janela.attributes("-alpha", 1.0)
+    janela.focus_force()
 
     # 3. Inicia o loop da janela 
     janela.mainloop()
