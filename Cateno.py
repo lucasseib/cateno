@@ -5,6 +5,24 @@ import pyperclip
 import ctypes
 import sys
 import os
+import json
+
+# Local para guardar as configurações do usuário
+
+pasta_dados_usuario = os.getenv("LOCALAPPDATA") # consulta o caminho que o Windows disponibiliza para os dados locais do usuário
+
+if not pasta_dados_usuario:
+    pasta_dados_usuario = os.path.join(   # junta as partes do caminho
+        os.path.expanduser("~"),
+        "AppData",
+        "Local"
+    )
+
+pasta_configuracoes = os.path.join(pasta_dados_usuario, "Cateno") # aponta para a pasta do Cateno
+caminho_configuracoes = os.path.join(  # aponta para o arquivo dentro dela
+    pasta_configuracoes,
+    "configuracoes.json",
+)
 
 def obter_caminho(nome_arquivo):
     # Pega o caminho correto do arquivo, seja rodando no VS Code ou no .exe final
@@ -262,35 +280,82 @@ def voltar_para_principal():
     janela.geometry("350x220")
     tela_principal.pack(fill="both", expand=True)
 
+#---------------------------------CARREGA AS CONFIGURAÇÕES--------------------------------------# 
+
+def carregar_configuracoes():
+    try:
+        with open(caminho_configuracoes, "r", encoding="utf-8") as arquivo: # "r" abre o arquivo para leitura
+            dados = json.load(arquivo) # transforma o conteúdo JSON em estruturas do Python, incluindo dicionários e booleanos
+
+    except FileNotFoundError:
+        # Na primeira execução, o arquivo ainda não existe
+        return
+
+    except (OSError, ValueError) as erro:
+        print(f"Não foi possível carregar as configurações: {erro}")
+        return
+
+    # O conteúdo principal precisa ser um dicionário
+    if not isinstance(dados, dict): # verifica o tipo do dado antes de utilizá-lo
+        return
+
+    # Verifica separadamente as configurações de cada modo
+    for modo in configuracoes: 
+        dados_modo = dados.get(modo)
+
+        if not isinstance(dados_modo, dict):
+            continue
+
+        separador = dados_modo.get("separador")
+
+        if isinstance(separador, str):
+            configuracoes[modo]["separador"] = separador or ","
+
+        for opcao in ("espaco_apos_separador", "fechar_parenteses"):
+            valor = dados_modo.get(opcao)
+
+            if isinstance(valor, bool):
+                configuracoes[modo][opcao] = valor
+
 #---------------------------------SALVAR--------------------------------------# 
 
 def salvar_configuracoes():
-    # Salva as configurações do Varchar
-    configuracoes["varchar"]["separador"] = (
-        campo_separador_varchar.get() or ","
-    )
-    configuracoes["varchar"]["espaco_apos_separador"] = (
-        opcao_espaco_varchar.get() == 1
-    )
-    configuracoes["varchar"]["fechar_parenteses"] = (
-        opcao_parenteses_varchar.get() == 1
-    )
+    # Reúne as escolhas feitas nos campos da interface
+    novas_configuracoes = {
+        "varchar": {
+            "separador": campo_separador_varchar.get() or ",",
+            "espaco_apos_separador": opcao_espaco_varchar.get() == 1,
+            "fechar_parenteses": opcao_parenteses_varchar.get() == 1,
+        },
+        "virgula": {
+            "separador": campo_separador_int.get() or ",",
+            "espaco_apos_separador": opcao_espaco_int.get() == 1,
+            "fechar_parenteses": opcao_parenteses_int.get() == 1,
+        },
+    }
 
-    #Salva as configurações do Int
-    configuracoes["virgula"]["separador"] = (
-        campo_separador_int.get() or ","
-    )
-    configuracoes["virgula"]["espaco_apos_separador"] = (
-        opcao_espaco_int.get() == 1
-    )
-    configuracoes["virgula"]["fechar_parenteses"] = (
-        opcao_parenteses_int.get() == 1
-    )
+    try:
+        # Cria a pasta caso ela ainda não exista
+        os.makedirs(pasta_configuracoes, exist_ok=True)
 
-    # Limpa o resultado produzido com as configurações anteriores
+        # Grava as escolhas no arquivo JSON
+        with open(caminho_configuracoes, "w", encoding="utf-8") as arquivo: # abre o arquivo pra escrita, criando ou substituindo seu conteúdo
+            json.dump(              # transforma o dicionário em JSON e escreve no arquivo
+                novas_configuracoes,
+                arquivo,
+                ensure_ascii=False, # mantém caracteres como letras acentuadas legíveis
+                indent=4, # organiza o texto com recuos para facilitar a leitura
+            )
+
+    except OSError as erro:  # trata problemas de acesso ou escrita no arquivo
+        print(f"Erro ao salvar as configurações: {erro}")
+        mostrar_aviso("Não foi possível salvar.")
+        return
+
+    # Aplica as escolhas depois que a gravação termina
+    configuracoes.update(novas_configuracoes)  # aplica os valores ao dicionário utilizado pelo programa
+
     limpar_tudo()
-
-    # Atualiza os campos com os valores salvos e retorna à principal
     voltar_para_principal()
 
 
@@ -436,7 +501,7 @@ def criar_interface():
 
     rotulo_separador_varchar = ctk.CTkLabel(
         linha_separador_varchar,
-        text="Separador:",
+        text="Separador",
         font=("Inter", 13),
     )
     rotulo_separador_varchar.pack(side="left")
@@ -532,7 +597,7 @@ def criar_interface():
 
     rotulo_separador_int = ctk.CTkLabel(
         linha_separador_int,
-        text="Separador:",
+        text="Separador",
         font=("Inter", 13),
     )
     rotulo_separador_int.pack(side="left")
@@ -687,4 +752,5 @@ def criar_interface():
     # 3. Inicia o loop da janela 
     janela.mainloop()
 
+carregar_configuracoes()
 criar_interface()
