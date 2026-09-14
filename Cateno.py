@@ -6,6 +6,8 @@ import ctypes
 import sys
 import os
 import json
+import math
+from PIL import Image, ImageDraw
 
 # Local para guardar as configurações do usuário
 
@@ -231,7 +233,7 @@ def ajustar_foco_configuracoes(event):
 
 def abrir_configuracoes():
     tela_principal.pack_forget()
-    janela.geometry("350x420")
+    janela.geometry("350x400")
     tela_configuracoes.pack(fill="both", expand=True)
     tela_configuracoes.focus_set()
 
@@ -420,12 +422,12 @@ def criar_interface():
     frame_abas = ctk.CTkFrame(tela_principal, fg_color="transparent") # transparent faz o frame sumir e misturar com o fundo da janela
     frame_abas.pack(pady=(15, 0)) # significa: (cima, baixo)
 
-    btn_aba_varchar = ctk.CTkButton(frame_abas, text="('varchar',)", width=147, height=28, corner_radius=8,
+    btn_aba_varchar = ctk.CTkButton(frame_abas, text="Aspas simples", width=147, height=28, corner_radius=8,
                                     font=("Inter SemiBold", 13),
                                     command=lambda: alterar_modo("varchar"))   # corner_radius é o nivel de arredondamento das bordas
     btn_aba_varchar.pack(side="left", padx=(11, 5))
 
-    btn_aba_virgula = ctk.CTkButton(frame_abas, text="(int,)", width=147, height=28, corner_radius=8,
+    btn_aba_virgula = ctk.CTkButton(frame_abas, text="Sem aspas", width=147, height=28, corner_radius=8,
                                     font=("Inter SemiBold", 13),
                                     command=lambda: alterar_modo("virgula"))
     btn_aba_virgula.pack(side="left", padx=(5, 11))
@@ -466,17 +468,54 @@ def criar_interface():
     btn_limpar.pack(side="left", padx=5)
 
     # Acesso as configurações na tela principal
+
+# Desenha uma engrenagem em uma imagem transparente
+    imagem_engrenagem = Image.new("RGBA", (80, 80), (0, 0, 0, 0))
+    desenho_engrenagem = ImageDraw.Draw(imagem_engrenagem)
+
+    pontos_engrenagem = []
+
+    for indice in range(32):
+        angulo = math.radians(indice * 360 / 32)
+
+        if indice % 4 in (1, 2):
+            raio = 34
+        else:
+            raio = 27
+
+        x = 40 + raio * math.cos(angulo)
+        y = 40 + raio * math.sin(angulo)
+
+        pontos_engrenagem.append((x, y))
+
+    desenho_engrenagem.polygon(
+        pontos_engrenagem,
+        fill="#FFFFFF",
+    )
+
+    # Abre o círculo transparente no centro
+    desenho_engrenagem.ellipse(
+        (28, 28, 52, 52),
+        fill=(0, 0, 0, 0),
+    )
+
+    icone_configuracoes = ctk.CTkImage(
+        light_image=imagem_engrenagem,
+        dark_image=imagem_engrenagem,
+        size=(20, 20),
+    )
+
     btn_configuracoes = ctk.CTkButton(
         tela_principal,
-        text="⚙",
+        text="",
+        image=icone_configuracoes,
         width=30,
         height=28,
-        font=("Segoe UI Symbol", 20),
         fg_color="transparent",
         hover_color="#393939",
         command=abrir_configuracoes,
     )
-    btn_configuracoes.pack(side="right", padx=15, pady=(0, 10))
+    btn_configuracoes.pack(side="right", padx=(0, 23), pady=(0, 10))
 
     # Segunda tela: criada agora, mas exibida apenas quando clicar na engrenagem
 
@@ -487,10 +526,10 @@ def criar_interface():
 
     titulo_configuracoes = ctk.CTkLabel(
         tela_configuracoes,
-        text="Varchar",
-        font=("Inter",16)
+        text="Aspas simples",
+        font=("Inter", 16, "bold")
     )
-    titulo_configuracoes.pack(anchor="e", padx=15, pady=(15, 0))
+    titulo_configuracoes.pack(anchor="w", padx=15, pady=(15, 0))
 
     # Linha da configuração de separador do Varchar
     linha_separador_varchar = ctk.CTkFrame(
@@ -508,10 +547,10 @@ def criar_interface():
 
     campo_separador_varchar = ctk.CTkEntry(
         linha_separador_varchar,
-        width=100,
+        width=50,
         font=("Inter", 13),
     )
-    campo_separador_varchar.pack(side="right")
+    campo_separador_varchar.pack(side="right", padx=(0, 6))
 
     campo_separador_varchar.insert(
         0,
@@ -583,10 +622,10 @@ def criar_interface():
     # Início das configurações do Int
     titulo_int = ctk.CTkLabel(
         tela_configuracoes,
-        text="Int",
-        font=("Inter", 16),
+        text="Sem aspas",
+        font=("Inter", 16, "bold"),
     )
-    titulo_int.pack(anchor="e", padx=15, pady=(20, 0))
+    titulo_int.pack(anchor="w", padx=15, pady=(20, 0))
 
     # Linha da configuração de separador do Int
     linha_separador_int = ctk.CTkFrame(
@@ -604,10 +643,10 @@ def criar_interface():
 
     campo_separador_int = ctk.CTkEntry(
         linha_separador_int,
-        width=100,
+        width=50,
         font=("Inter", 13),
     )
-    campo_separador_int.pack(side="right")
+    campo_separador_int.pack(side="right", padx=(0, 6))
 
     campo_separador_int.insert(
         0,
@@ -682,6 +721,10 @@ def criar_interface():
     )
     rodape_configuracoes.pack(side="bottom", fill="x", padx=15, pady=10)
 
+    rodape_configuracoes.grid_columnconfigure(0, weight=1, uniform="laterais")
+    rodape_configuracoes.grid_columnconfigure(1, weight=0)
+    rodape_configuracoes.grid_columnconfigure(2, weight=1, uniform="laterais")
+
     btn_salvar = ctk.CTkButton(
         rodape_configuracoes,
         text="Salvar",
@@ -692,19 +735,40 @@ def criar_interface():
         hover_color="#839738",
         command=salvar_configuracoes,
     )
-    btn_salvar.pack(side="left")
+    btn_salvar.grid(row=0, column=1)
+
+    # Desenha uma seta centralizada em uma imagem transparente
+    imagem_seta = Image.new("RGBA", (40, 40), (0, 0, 0, 0))
+    desenho_seta = ImageDraw.Draw(imagem_seta)
+
+    desenho_seta.line(
+        [(32, 20), (8, 20)],
+        fill="#FFFFFF",
+        width=3,
+    )
+    desenho_seta.line(
+        [(18, 10), (8, 20), (18, 30)],
+        fill="#FFFFFF",
+        width=3,
+    )
+
+    icone_voltar = ctk.CTkImage(
+        light_image=imagem_seta,
+        dark_image=imagem_seta,
+        size=(20, 20),
+    )
 
     btn_voltar = ctk.CTkButton(
         rodape_configuracoes,
-        text="←",
+        text="",
+        image=icone_voltar,
         width=30,
         height=28,
-        font=("Segoe UI Symbol", 20),
         fg_color="transparent",
         hover_color="#393939",
         command=voltar_para_principal,
     )
-    btn_voltar.pack(side="right")
+    btn_voltar.grid(row=0, column=2, sticky="e") # sticky="e" posiciona a seta na extremidade direita de sua coluna
 
     # Trata cliques fora dos campos na tela de configuracoes 
 
