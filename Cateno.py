@@ -233,7 +233,7 @@ def ajustar_foco_configuracoes(event):
 
 def abrir_configuracoes():
     tela_principal.pack_forget()
-    janela.geometry("350x400")
+    janela.geometry("350x340")
     tela_configuracoes.pack(fill="both", expand=True)
     tela_configuracoes.focus_set()
 
@@ -279,7 +279,7 @@ def voltar_para_principal():
 
     # Retorna à tela principal
     tela_configuracoes.pack_forget()
-    janela.geometry("350x220")
+    janela.geometry("350x200")
     tela_principal.pack(fill="both", expand=True)
 
 #---------------------------------CARREGA AS CONFIGURAÇÕES--------------------------------------# 
@@ -402,7 +402,7 @@ def criar_interface():
 #---------------------------------CALCULO MONITOR--------------------------------------#
 
     largura_app = 350
-    altura_app = 220
+    altura_app = 200
 
     # Define o tamanho; a posição será calculada após montar a janela
     janela.geometry(f"{largura_app}x{altura_app}")
@@ -444,7 +444,7 @@ def criar_interface():
 
     # Organiza os botões lado a lado
     frame_botoes = ctk.CTkFrame(tela_principal, fg_color="transparent")
-    frame_botoes.pack(pady=(15, 15))
+    frame_botoes.pack(pady=(15, 5))
 
     # Botão 1: Colar
     btn_colar = ctk.CTkButton(frame_botoes, text="Colar", width=95, height=28, corner_radius=8,
@@ -490,7 +490,7 @@ def criar_interface():
 
     desenho_engrenagem.polygon(
         pontos_engrenagem,
-        fill="#FFFFFF",
+        fill="#A0A0A0",
     )
 
     # Abre o círculo transparente no centro
@@ -499,10 +499,11 @@ def criar_interface():
         fill=(0, 0, 0, 0),
     )
 
+    # Tamanho engrenagem
     icone_configuracoes = ctk.CTkImage(
         light_image=imagem_engrenagem,
         dark_image=imagem_engrenagem,
-        size=(20, 20),
+        size=(16, 16),
     )
 
     btn_configuracoes = ctk.CTkButton(
@@ -524,10 +525,17 @@ def criar_interface():
         fg_color="transparent",
     )
 
+    # TITULO ASPAS SIMPLES TELA CONFIGURACOES
+
     titulo_configuracoes = ctk.CTkLabel(
         tela_configuracoes,
         text="Aspas simples",
-        font=("Inter", 16, "bold")
+        width=147,
+        height=28,
+        corner_radius=8,
+        fg_color="#393939",
+        text_color="#F1FFBE",
+        font=("Inter", 13, "bold"),
     )
     titulo_configuracoes.pack(anchor="w", padx=15, pady=(15, 0))
 
@@ -536,19 +544,23 @@ def criar_interface():
         tela_configuracoes,
         fg_color="transparent",
     )
-    linha_separador_varchar.pack(fill="x", padx=15, pady=(15, 0))
+    linha_separador_varchar.pack(fill="x", padx=15, pady=(10, 0))
 
     rotulo_separador_varchar = ctk.CTkLabel(
         linha_separador_varchar,
         text="Separador",
         font=("Inter", 13),
+        height=24,
     )
     rotulo_separador_varchar.pack(side="left")
 
     campo_separador_varchar = ctk.CTkEntry(
         linha_separador_varchar,
         width=50,
+        height=24,
         font=("Inter", 13),
+        justify="center",
+        corner_radius=8,
     )
     campo_separador_varchar.pack(side="right", padx=(0, 6))
 
@@ -563,23 +575,32 @@ def criar_interface():
         tela_configuracoes,
         fg_color="transparent",
     )
-    linha_espaco_varchar.pack(fill="x", padx=15, pady=(10, 0))
+    linha_espaco_varchar.pack(fill="x", padx=15, pady=(5, 0))
 
     rotulo_espaco_varchar = ctk.CTkLabel(
         linha_espaco_varchar,
         text="Espaço após o separador",
         font=("Inter", 13),
+        height=24,
     )
     rotulo_espaco_varchar.pack(side="left")
 
-    opcao_espaco_varchar = ctk.CTkCheckBox(
+    opcao_espaco_varchar = ctk.CTkSwitch(
         linha_espaco_varchar,
         text="",
-        width=24,
-        checkbox_width=24,
-        checkbox_height=24,
-        fg_color="#9db64a",
-        hover_color="#839738",
+        width=40,
+        height=24,
+        switch_width=34,  # tamanho da barra
+        switch_height=18, # tamanho da barra
+        corner_radius=9, # arredondamento
+        border_width=0, # remove a borda que reduz a área colorida da barra, deixando-a com a altura completa
+        button_length=0, # - remove o trecho reto adicional do marcador. As extremidades arredondadas continuam sendo desenhadas, formando um
+        fg_color="#555555", # cor da barra desligada                                        círculo — o zero não faz o marcador desaparecer.
+        progress_color="#9db64a", # cor da barra ligada
+        button_color="#F2F2F2", # cor do círculo
+        button_hover_color="#D9D9D9",
+        onvalue=1, # valor de ligado
+        offvalue=0, # valor de desligado
     )
     opcao_espaco_varchar.pack(side="right")
 
@@ -594,23 +615,32 @@ def criar_interface():
         tela_configuracoes,
         fg_color="transparent"
     )
-    linha_parenteses_varchar.pack(fill="x", padx=15, pady=(10, 0))
+    linha_parenteses_varchar.pack(fill="x", padx=15, pady=(5, 0))
 
     rotulo_parenteses_varchar = ctk.CTkLabel(
         linha_parenteses_varchar,
-        text="Resultado fechado ( )",
+        text="Envolver em parênteses",
         font=("Inter", 13),
+        height=24,
     )
     rotulo_parenteses_varchar.pack(side="left")
 
-    opcao_parenteses_varchar = ctk.CTkCheckBox(
+    opcao_parenteses_varchar = ctk.CTkSwitch(
         linha_parenteses_varchar,
         text="",
-        width=24,
-        checkbox_width=24,
-        checkbox_height=24,
-        fg_color="#9db64a",
-        hover_color="#839738",
+        width=40,
+        height=24,
+        switch_width=34,
+        switch_height=18,
+        corner_radius=9,
+        border_width=0,
+        button_length=0,
+        fg_color="#555555",
+        progress_color="#9db64a",
+        button_color="#F2F2F2",
+        button_hover_color="#D9D9D9",
+        onvalue=1,
+        offvalue=0,
     )
     opcao_parenteses_varchar.pack(side="right")
 
@@ -619,32 +649,44 @@ def criar_interface():
     else:
         opcao_parenteses_varchar.deselect()
 
-    # Início das configurações do Int
+    # CONFIGURACOES SEM ASPAS INT
+
+    # TITULO 
     titulo_int = ctk.CTkLabel(
         tela_configuracoes,
         text="Sem aspas",
-        font=("Inter", 16, "bold"),
+        width=147,
+        height=28,
+        corner_radius=8,
+        fg_color="#393939", # fundo do título
+        text_color="#F1FFBE",
+        font=("Inter", 13, "bold"),
     )
     titulo_int.pack(anchor="w", padx=15, pady=(20, 0))
 
     # Linha da configuração de separador do Int
+
     linha_separador_int = ctk.CTkFrame(
         tela_configuracoes,
         fg_color="transparent",
     )
-    linha_separador_int.pack(fill="x", padx=15, pady=(15, 0))
+    linha_separador_int.pack(fill="x", padx=15, pady=(10, 0))
 
     rotulo_separador_int = ctk.CTkLabel(
         linha_separador_int,
         text="Separador",
         font=("Inter", 13),
+        height=24,
     )
     rotulo_separador_int.pack(side="left")
 
     campo_separador_int = ctk.CTkEntry(
         linha_separador_int,
         width=50,
+        height=24,
         font=("Inter", 13),
+        justify="center",
+        corner_radius=8,
     )
     campo_separador_int.pack(side="right", padx=(0, 6))
 
@@ -658,23 +700,32 @@ def criar_interface():
         tela_configuracoes,
         fg_color="transparent",
     )
-    linha_espaco_int.pack(fill="x", padx=15, pady=(10, 0))
+    linha_espaco_int.pack(fill="x", padx=15, pady=(5, 0))
 
     rotulo_espaco_int = ctk.CTkLabel(
         linha_espaco_int,
         text="Espaço após o separador",
         font=("Inter", 13),
+        height=24,
     )
     rotulo_espaco_int.pack(side="left")
 
-    opcao_espaco_int = ctk.CTkCheckBox(
+    opcao_espaco_int = ctk.CTkSwitch(
         linha_espaco_int,
         text="",
-        width=24,
-        checkbox_width=24,
-        checkbox_height=24,
-        fg_color="#9db64a",
-        hover_color="#839738",
+        width=40,
+        height=24,
+        switch_width=34,
+        switch_height=18,
+        corner_radius=9,
+        border_width=0,
+        button_length=0,
+        fg_color="#555555",
+        progress_color="#9db64a",
+        button_color="#F2F2F2",
+        button_hover_color="#D9D9D9",
+        onvalue=1,
+        offvalue=0,
     )
     opcao_espaco_int.pack(side="right")
 
@@ -688,23 +739,32 @@ def criar_interface():
         tela_configuracoes,
         fg_color="transparent",
     )
-    linha_parenteses_int.pack(fill="x", padx=15, pady=(10, 0))
+    linha_parenteses_int.pack(fill="x", padx=15, pady=(5, 0))
 
     rotulo_parenteses_int = ctk.CTkLabel(
         linha_parenteses_int,
-        text="Resultado fechado ( )",
+        text="Envolver em parênteses",
         font=("Inter", 13),
+        height=24,
     )
     rotulo_parenteses_int.pack(side="left")
 
-    opcao_parenteses_int = ctk.CTkCheckBox(
+    opcao_parenteses_int = ctk.CTkSwitch(
         linha_parenteses_int,
         text="",
-        width=24,
-        checkbox_width=24,
-        checkbox_height=24,
-        fg_color="#9db64a",
-        hover_color="#839738",
+        width=40,
+        height=24,
+        switch_width=34,
+        switch_height=18,
+        corner_radius=9,
+        border_width=0,
+        button_length=0,
+        fg_color="#555555",
+        progress_color="#9db64a",
+        button_color="#F2F2F2",
+        button_hover_color="#D9D9D9",
+        onvalue=1,
+        offvalue=0,
     )
     opcao_parenteses_int.pack(side="right")
 
@@ -713,17 +773,24 @@ def criar_interface():
     else:
         opcao_parenteses_int.deselect()
 
-    # Rodapé da tela de Configurações
+    # RODAPÉ TELA DE CONFIGURACOES
 
     rodape_configuracoes = ctk.CTkFrame(
         tela_configuracoes,
         fg_color="transparent",
     )
-    rodape_configuracoes.pack(side="bottom", fill="x", padx=15, pady=10)
+    rodape_configuracoes.pack(
+        side="bottom",
+        fill="x",
+        padx=15,
+        pady=(10, 20),
+    )
 
     rodape_configuracoes.grid_columnconfigure(0, weight=1, uniform="laterais")
     rodape_configuracoes.grid_columnconfigure(1, weight=0)
     rodape_configuracoes.grid_columnconfigure(2, weight=1, uniform="laterais")
+
+    # BOTAO SALVAR
 
     btn_salvar = ctk.CTkButton(
         rodape_configuracoes,
@@ -732,6 +799,7 @@ def criar_interface():
         height=28,
         font=("Inter SemiBold", 13),
         fg_color="#9db64a",
+        text_color="#ffffff",
         hover_color="#839738",
         command=salvar_configuracoes,
     )
@@ -768,7 +836,7 @@ def criar_interface():
         hover_color="#393939",
         command=voltar_para_principal,
     )
-    btn_voltar.grid(row=0, column=2, sticky="e") # sticky="e" posiciona a seta na extremidade direita de sua coluna
+    btn_voltar.grid(row=0, column=2, sticky="e", padx=(0, 6)) # sticky="e" posiciona a seta na extremidade direita de sua coluna
 
     # Trata cliques fora dos campos na tela de configuracoes 
 
