@@ -1,67 +1,121 @@
 # Cateno 🗄️
 
-O **Cateno** é um aplicativo desktop desenvolvido em Python com CustomTkinter para automatizar a formatação de listas de valores em consultas SQL.
+O **Cateno** é um aplicativo desktop desenvolvido em Python com CustomTkinter para transformar listas copiadas em uma única linha, com formatação personalizável.
 
 ## 📘 Sobre o projeto
 
-O Cateno foi criado para resolver uma tarefa comum no dia a dia de quem trabalha com banco de dados: pegar uma lista de valores copiados e transformá-la rapidamente em uma estrutura pronta para uso em SQL, especialmente em cláusulas `IN`.
+O projeto nasceu para facilitar a preparação de listas para cláusulas `IN` de SQL. Com o uso no dia a dia, também passou a ajudar em outras tarefas que exigem reunir valores separados por linhas.
 
-Em vez de formatar cada item manualmente, o aplicativo processa os dados automaticamente e entrega o resultado com mais rapidez, padronização e praticidade.
+Na versão 2, você pode escolher entre os modos **Aspas simples** e **Sem aspas** e configurar, separadamente para cada um:
 
+- O separador entre os valores.
+- A inclusão de um espaço após o separador.
+- O uso de parênteses ao redor do resultado.
 
-## 💡 Exemplo de Uso
+As configurações são salvas no computador e recuperadas ao abrir o aplicativo novamente.
 
-**Entrada (Lista copiada pelo usuário):**
+## 📦 Versão disponível
+
+O código-fonte deste repositório contém a versão 2 em desenvolvimento.
+
+Os executáveis da Release `v1.0.0` correspondem à primeira versão e não incluem as novas configurações. A distribuição da versão 2 será disponibilizada após sua finalização.
+
+## 💡 Exemplos de uso
+
+Copie uma lista com um valor por linha, escolha o modo e clique em **Colar**. O Cateno formata os valores e exibe uma prévia. Clique em **Copiar** para obter o resultado completo.
+
+**Lista copiada:**
+
 ```text
-    123
-    456
-    789
+123
+456
+789
 ```
 
-**Saída no modo ('varchar',):**
+### Com as configurações padrão
+
+Os dois modos começam usando vírgula, espaço após o separador e parênteses ao redor do resultado.
+
+**Modo Aspas simples:**
+
 ```text
 ('123', '456', '789')
 ```
 
-**Saída no modo (int,):**
+**Modo Sem aspas:**
+
 ```text
 (123, 456, 789)
 ```
 
+O modo **Sem aspas** também aceita letras e outros textos; ele não está limitado a números.
+
+### Com configurações personalizadas
+
+Por exemplo, no modo **Sem aspas**, configure:
+
+- **Separador:** `;`
+- **Espaço após o separador:** desligado.
+- **Envolver em parênteses:** desligado.
+
+Clique em **Salvar**. Ao colar novamente a lista, o resultado será:
+
+```text
+123;456;789
+```
+
+Cada modo mantém suas próprias configurações. A seta de voltar descarta as alterações que ainda não foram salvas.
+
+> A prévia mostra até oito valores. O botão **Copiar** copia todos os valores formatados, mesmo quando a prévia termina em reticências.
+
+
 ## ✨ Funcionalidades
 
-* Formatação automática de listas para SQL
-* Modo varchar, com aspas simples em cada item
-* Modo int, sem aspas
-* Geração de preview resumido dos dados
-* Botão para copiar o resultado final
-* Botão para limpar o campo rapidamente
-* Interface simples, leve e objetiva
+- Conversão de listas com um valor por linha em uma única linha.
+- Remoção de linhas vazias e espaços no início e no fim de cada valor.
+- Modo **Aspas simples**, que envolve cada valor em aspas simples.
+- Modo **Sem aspas**, para números ou textos sem adicionar aspas.
+- Configurações independentes para cada modo:
+  - Separador personalizável.
+  - Espaço opcional após o separador.
+  - Parênteses opcionais ao redor do resultado.
+- Gravação das preferências em JSON, com recuperação ao iniciar.
+- Prévia dos primeiros oito valores e cópia do resultado completo.
+- Botão para limpar a prévia e o resultado.
+- Interface escura com tela de configurações.
+- Abertura centralizada e minimização ao perder o foco.
 
+Se o campo Separador estiver vazio ao salvar, o aplicativo utilizará uma vírgula.
 
-## 🛠️ Tecnologias Utilizadas
+As preferências ficam em `%LOCALAPPDATA%\Cateno\configuracoes.json`, na pasta de dados do usuário do Windows.
 
-* **Python 3**
-* **CustomTkinter** (Para a interface gráfica)
-* **Pyperclip** (Para manipulação da área de transferência)
-* **Ctypes / Wintypes** (Para comunicação nativa com as APIs do Windows)
-* **PyInstaller** (Para empacotamento do executável)
+## 🛠️ Tecnologias utilizadas
 
+- **Python 3:** lógica e funcionamento do aplicativo.
+- **CustomTkinter e Tkinter:** interface gráfica e eventos.
+- **Pyperclip:** leitura e escrita na área de transferência.
+- **Pillow:** desenho dos ícones de navegação.
+- **JSON:** formato utilizado para armazenar as configurações, por meio do módulo `json` do Python.
+- **ctypes:** integração com recursos do Windows.
+- **PyInstaller:** empacotamento da versão executável.
 
-## 🎨 Temas Disponíveis
+## 🎨 Aparência
 
-O aplicativo foi projetado com um visual limpo e moderno, e está disponível em duas versões para você escolher:
+A versão 2 será disponibilizada inicialmente apenas com o tema escuro.
 
-* **Cateno DM (Dark Mode)**
+Está prevista uma opção para alternar o tema diretamente nas configurações do aplicativo, sem precisar baixar outra versão. Essa funcionalidade ainda não está disponível.
 
-![Cateno Dark Mode](catenodmprint.png)
+## 📥 Distribuição da versão 2
 
-* **Cateno LM (Light Mode)**
+A distribuição da versão 2 está em preparação. O objetivo é disponibilizar um instalador para Windows, com acesso ao aplicativo por atalhos, sem exigir que o usuário extraia um ZIP ou organize manualmente os arquivos necessários.
 
-![Cateno Light Mode](catenolmprint.png)
+O instalador ainda não está disponível. Enquanto isso, a versão 2 pode ser executada pelo código-fonte, seguindo as instruções abaixo.
 
+## 🗂️ Versão 1
 
-## 🚀 Como baixar e usar (Versão Executável)
+A Release `v1.0.0` oferece os pacotes separados **Dark Mode** e **Light Mode**. Esses arquivos correspondem à versão anterior e não incluem as configurações da versão 2.
+
+## 🚀 Como baixar e usar a versão 1
 
 Se você não é desenvolvedor e quer apenas usar a ferramenta, disponibilizo duas pastas prontas: Cateno DM (Escuro) e Cateno LM (Claro).
 
@@ -76,26 +130,40 @@ Se quiser um ícone na sua Área de Trabalho, clique com o botão direito no `Ca
 ⚠️ **Aviso de Segurança do Windows:** Como este é um aplicativo independente e sem assinatura digital corporativa, o Windows (SmartScreen) exibirá uma tela azul dizendo *"O Windows protegeu o seu computador"* na primeira vez que você abri-lo. Isso é normal! Para prosseguir, clique em **"Mais informações"** e depois no botão **"Executar assim mesmo"**.
 
 
-## 💻 Como rodar o código-fonte
+## 💻 Como executar a versão 2 pelo código-fonte
 
-Se você é desenvolvedor e quer rodar pelo terminal ou editar o código:
+As instruções abaixo são para Windows, com Python 3 e Git instalados.
 
 1. Clone o repositório:
-   ```bash
+
+   ```powershell
    git clone https://github.com/lucasseib/cateno.git
    ```
 
 2. Entre na pasta do projeto:
-   ```bash
+
+   ```powershell
    cd cateno
    ```
 
-3. Instale as dependências:
-   ```bash
-   pip install customtkinter pyperclip
+3. Crie um ambiente virtual:
+
+   ```powershell
+   python -m venv .venv
    ```
 
-4. Execute o aplicativo:
-   ```bash
-   python Cateno.py
+4. Instale as dependências nesse ambiente:
+
+   ```powershell
+   .\.venv\Scripts\python.exe -m pip install customtkinter pyperclip Pillow
    ```
+
+5. Execute o aplicativo:
+
+   ```powershell
+   .\.venv\Scripts\python.exe Cateno.py
+   ```
+
+Execute os comandos dentro da pasta do projeto. Mantenha os arquivos `cateno.ico` e `Inter-VariableFont_slnt,wght.ttf` junto de `Cateno.py`, pois são utilizados pela interface.
+
+Nas próximas vezes, basta entrar na pasta do projeto e repetir o comando do passo 5.

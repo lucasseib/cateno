@@ -7,3 +7,6 @@ dist/
 
 # Pastas temporárias do Python
 __pycache__/
+
+# Ambiente virtual do Python
+.venv/
