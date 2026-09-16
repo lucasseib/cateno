@@ -82,7 +82,7 @@ Cada modo mantém suas próprias configurações. A seta de voltar descarta as a
 - Gravação das preferências em JSON, com recuperação ao iniciar.
 - Prévia dos primeiros oito valores e cópia do resultado completo.
 - Botão para limpar a prévia e o resultado.
-- Interface escura com tela de configurações.
+- Interface com temas claro e escuro, alternância imediata e preferência salva automaticamente.
 - Abertura centralizada e minimização ao perder o foco.
 
 Se o campo Separador estiver vazio ao salvar, o aplicativo utilizará uma vírgula.
@@ -101,9 +101,18 @@ As preferências ficam em `%LOCALAPPDATA%\Cateno\configuracoes.json`, na pasta d
 
 ## 🎨 Aparência
 
-A versão 2 será disponibilizada inicialmente apenas com o tema escuro.
+A versão 2 reúne os temas claro e escuro no mesmo aplicativo.
 
-Está prevista uma opção para alternar o tema diretamente nas configurações do aplicativo, sem precisar baixar outra versão. Essa funcionalidade ainda não está disponível.
+Para alternar, abra as configurações e clique no controle com sol e lua, à esquerda do botão Salvar. A mudança é aplicada imediatamente, sem precisar salvar ou reiniciar.
+
+O símbolo indica o tema em uso:
+
+- **Sol:** tema claro.
+- **Lua:** tema escuro.
+
+A preferência é salva automaticamente e recuperada ao abrir o Cateno novamente.
+
+Trocar o tema não salva as alterações pendentes nos campos de formatação. Essas alterações continuam dependendo do botão **Salvar**; a seta de voltar as descarta, mantendo o tema escolhido.
 
 ## 📥 Distribuição da versão 2
 
