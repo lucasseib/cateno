@@ -16,11 +16,11 @@ As configurações são salvas no computador e recuperadas ao abrir o aplicativo
 
 ## 📦 Versão disponível
 
-O código-fonte deste repositório corresponde à versão 2 do Cateno.
+A versão **2.0.0** está disponível com instalador para Windows.
 
-O instalador da versão `2.0.0` foi gerado e testado localmente. Sua publicação no GitHub Releases está em preparação.
+Acesse a [Release v2.0.0](https://github.com/lucasseib/cateno/releases/tag/v2.0.0) e baixe **Cateno-Setup-2.0.0.exe** na seção **Assets**.
 
-A Release `v1.0.0` permanece disponível como versão anterior, sem as novas configurações e a alternância de temas.
+A Release `v1.0.0` permanece disponível como versão anterior.
 
 ## 💡 Exemplos de uso
 
@@ -121,9 +121,9 @@ Trocar o tema não salva as alterações pendentes nos campos de formatação. E
 
 A versão 2 utiliza um instalador para Windows que inclui o aplicativo e suas dependências. Não é necessário instalar Python nem extrair arquivos ZIP.
 
-Após a publicação da Release `v2.0.0`:
+Para instalar:
 
-1. Acesse [Releases](https://github.com/lucasseib/cateno/releases).
+1. Acesse a [Release v2.0.0](https://github.com/lucasseib/cateno/releases/tag/v2.0.0).
 2. Baixe o arquivo `Cateno-Setup-2.0.0.exe`.
 3. Execute o instalador e siga as instruções.
 4. Se desejar, marque a opção de criar um atalho na Área de Trabalho.
