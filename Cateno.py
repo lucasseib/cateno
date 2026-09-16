@@ -9,6 +9,51 @@ import json
 import math
 from PIL import Image, ImageDraw
 
+# Paleta do aplicativo: cada par segue a ordem (CLARO, ESCURO)
+
+CORES = {
+    "fundo_janela": ("#fcf7f1", "#1E1E1E"),
+    "fundo_previa": ("#e0e6ed", "#393939"),
+    "texto_previa": ("#2F5600", "#F1FFBE"),
+
+    "colar": ("#7fc7cc", "#77bcc1"),
+    "colar_hover": ("#70b0b5", "#669da0"),
+
+    "acao_verde": ("#b8d558", "#9db64a"),
+    "acao_verde_hover": ("#96ae3f", "#839738"),
+
+    "limpar": ("#f4713d", "#f4713d"),
+    "limpar_hover": ("#d06034", "#d06034"),
+
+    "modo_inativo": ("#c8c8c8", "#8d8d8d"),
+    "modo_inativo_hover": ("#a1a1a1", "#7b7b7b"),
+
+    "texto_botao": ("#ffffff", "#ffffff"),
+    "texto_modo_inativo": ("#fff9ef", "#fff9ef"),
+
+    "fundo_aviso": ("#7fc7cc", "#77bcc1"),
+    "texto_aviso": ("#ffffff", "#ffffff"),
+
+    "fundo_titulo": ("#e0e6ed", "#393939"),
+    "texto_titulo": ("#2F5600", "#F1FFBE"),
+
+    "fundo_separador": ("#e0e6ed", "#343638"),
+    "texto_separador": ("#2F5600", "#DCE4EE"),
+    "borda_separador": ("#A5ADB5", "#565B5E"),
+
+    "switch_desligado": ("#B8BEC5", "#555555"),
+    "switch_circulo": ("#626D78", "#F2F2F2"),
+    "switch_circulo_hover": ("#57616A", "#D9D9D9"),
+
+    "texto_configuracao": ("#333333", "#DCE4EE"),
+
+    "icone_hover": ("#E0E6ED", "#393939"),
+
+    "icone_voltar": ("#505860", "#FFFFFF"),
+
+    "icone_configuracoes": ("#626D78", "#A0A0A0"),
+}
+
 # Local para guardar as configurações do usuário
 
 pasta_dados_usuario = os.getenv("LOCALAPPDATA") # consulta o caminho que o Windows disponibiliza para os dados locais do usuário
@@ -50,6 +95,7 @@ ctk.set_default_color_theme("blue") # Tema padrão dos botões (não é consider
 # Ela fica fora das funções para que todas elas possam exergá-la
 resultado_completo_sql = ""
 modo_atual = "varchar"  # O programa sempre vai abrir com o modo varchar ativado
+tema_atual = "dark"
 
 # --- Configurações Independentes para cada modo de formatação
 configuracoes = {
@@ -69,18 +115,29 @@ def alterar_modo(novo_modo):
     global modo_atual
     modo_atual = novo_modo
 
-    cor_ativa = "#9db64a"
-    cor_inativa = "#8d8d8d"
-
-    # Se o botão Varchar for clicado:
     if modo_atual == "varchar":
-        btn_aba_varchar.configure(fg_color=cor_ativa, text_color="#ffffff", hover_color="#839738") 
-        btn_aba_virgula.configure(fg_color=cor_inativa, text_color="#fff9ef", hover_color="#7b7b7b") 
+        btn_aba_varchar.configure(
+            fg_color=CORES["acao_verde"],
+            text_color=CORES["texto_botao"],
+            hover_color=CORES["acao_verde_hover"],
+        )
+        btn_aba_virgula.configure(
+            fg_color=CORES["modo_inativo"],
+            text_color=CORES["texto_modo_inativo"],
+            hover_color=CORES["modo_inativo_hover"],
+        )
 
-    # Se o botão Vírgula for clicado:
     elif modo_atual == "virgula":
-        btn_aba_varchar.configure(fg_color=cor_inativa, text_color="#fff9ef", hover_color="#7b7b7b")
-        btn_aba_virgula.configure(fg_color=cor_ativa, text_color="#ffffff", hover_color="#839738") 
+        btn_aba_varchar.configure(
+            fg_color=CORES["modo_inativo"],
+            text_color=CORES["texto_modo_inativo"],
+            hover_color=CORES["modo_inativo_hover"],
+        )
+        btn_aba_virgula.configure(
+            fg_color=CORES["acao_verde"],
+            text_color=CORES["texto_botao"],
+            hover_color=CORES["acao_verde_hover"],
+        )
 
     limpar_tudo()
 
@@ -89,24 +146,38 @@ def alterar_modo(novo_modo):
 #---------------------------------AVISO FLUTUANTE TEMPORÁRIO--------------------------------------#
 
 def mostrar_aviso(mensagem):
-    
-    # Cria um "quadro" (Frame) dentro do janela do app
-    popup = ctk.CTkFrame(janela, fg_color="#77bcc1", corner_radius=6, bg_color="#393939")
-    
-    # Cria o texto de aviso e coloca dentro do Frame
-    lbl = ctk.CTkLabel(popup, text=mensagem, 
-                       text_color="#FFFFFF",   # cor da letra
-                       font=("Inter", 12),       # fonte
-                       fg_color="transparent")    
-    lbl.pack(padx=15, pady=6) # Controla o tamanho do balão (espaçamento interno)
+    # Escolhe onde o aviso será exibido
+    if tela_configuracoes.winfo_ismapped():
+        area_aviso = tela_configuracoes
+        cor_fundo = janela.cget("fg_color")
+    else:
+        area_aviso = campo_texto
+        cor_fundo = campo_texto.cget("fg_color")
 
-    # O .place flutua o item por cima dos outros widgets da janela
-    # relx=0.5 e rely=0.5 significa 50% do eixo X e Y (exatamente no centro)
+    # Cria o balão dentro da área escolhida
+    popup = ctk.CTkFrame(
+        area_aviso,
+        fg_color=CORES["fundo_aviso"],
+        corner_radius=6,
+        bg_color=cor_fundo,
+    )
+
+    lbl = ctk.CTkLabel(
+        popup,
+        text=mensagem,
+        text_color=CORES["texto_aviso"],
+        font=("Inter", 12),
+        fg_color="transparent",
+    )
+    lbl.pack(padx=15, pady=6)
+
+    # Centraliza o aviso dentro dessa área
     popup.place(relx=0.5, rely=0.5, anchor="center")
+    popup.lift()
 
-    # Destrói apenas o Frame após 1.5 segundos
-    janela.after(1500, popup.destroy) 
-
+    # Remove o aviso após 1,5 segundo
+    janela.after(1500, popup.destroy)
+    
 #---------------------------------COLAR E FORMATAR--------------------------------------#
 
 def processar_e_formatar():     
@@ -285,6 +356,8 @@ def voltar_para_principal():
 #---------------------------------CARREGA AS CONFIGURAÇÕES--------------------------------------# 
 
 def carregar_configuracoes():
+    global tema_atual
+
     try:
         with open(caminho_configuracoes, "r", encoding="utf-8") as arquivo: # "r" abre o arquivo para leitura
             dados = json.load(arquivo) # transforma o conteúdo JSON em estruturas do Python, incluindo dicionários e booleanos
@@ -300,6 +373,12 @@ def carregar_configuracoes():
     # O conteúdo principal precisa ser um dicionário
     if not isinstance(dados, dict): # verifica o tipo do dado antes de utilizá-lo
         return
+
+    # Recupera o tema, aceitando apenas os valores esperados
+    tema_salvo = dados.get("tema")
+
+    if tema_salvo in ("light", "dark"):
+        tema_atual = tema_salvo
 
     # Verifica separadamente as configurações de cada modo
     for modo in configuracoes: 
@@ -342,11 +421,14 @@ def salvar_configuracoes():
 
         # Grava as escolhas no arquivo JSON
         with open(caminho_configuracoes, "w", encoding="utf-8") as arquivo: # abre o arquivo pra escrita, criando ou substituindo seu conteúdo
-            json.dump(              # transforma o dicionário em JSON e escreve no arquivo
-                novas_configuracoes,
+            json.dump(
+                {
+                    **novas_configuracoes,
+                    "tema": tema_atual,
+                },
                 arquivo,
-                ensure_ascii=False, # mantém caracteres como letras acentuadas legíveis
-                indent=4, # organiza o texto com recuos para facilitar a leitura
+                ensure_ascii=False,
+                indent=4,
             )
 
     except OSError as erro:  # trata problemas de acesso ou escrita no arquivo
@@ -360,6 +442,109 @@ def salvar_configuracoes():
     limpar_tudo()
     voltar_para_principal()
 
+#----------------------------CRIA ICONE TEMA-----------------------------------#
+
+def criar_icone_tema():
+    imagens = []
+
+    for tema in ("light", "dark"):
+        imagem = Image.new("RGBA", (136, 72), (0, 0, 0, 0))
+        desenho = ImageDraw.Draw(imagem)
+
+        if tema == "light":
+            cor_barra = CORES["limpar"][0]
+            centro_x = 100
+        else:
+            cor_barra = "#315A91"
+            centro_x = 36
+
+        # Cápsula externa
+        desenho.rounded_rectangle(
+            (0, 0, 135, 71),
+            radius=36,
+            fill=cor_barra,
+        )
+
+        # Círculo: à direita no claro e à esquerda no escuro
+        desenho.ellipse(
+            (centro_x - 28, 8, centro_x + 28, 64),
+            fill="#F2F2F2",
+        )
+
+        if tema == "light":
+            # Centro do sol
+            desenho.ellipse(
+                (centro_x - 8, 28, centro_x + 8, 44),
+                fill=cor_barra,
+            )
+
+            # Oito raios ao redor do sol
+            for indice in range(8):
+                angulo = math.radians(indice * 45)
+
+                inicio = (
+                    centro_x + 13 * math.cos(angulo),
+                    36 + 13 * math.sin(angulo),
+                )
+                fim = (
+                    centro_x + 19 * math.cos(angulo),
+                    36 + 19 * math.sin(angulo),
+                )
+
+                desenho.line([inicio, fim], fill=cor_barra, width=3)
+        else:
+            # Lua: sobrepõe dois círculos para formar o crescente
+            desenho.ellipse(
+                (centro_x - 13, 23, centro_x + 13, 49),
+                fill=cor_barra,
+            )
+            desenho.ellipse(
+                (centro_x - 5, 19, centro_x + 19, 43),
+                fill="#F2F2F2",
+            )
+
+        imagens.append(imagem)
+
+    return ctk.CTkImage(
+        light_image=imagens[0],
+        dark_image=imagens[1],
+        size=(34, 18),
+    )
+
+#---------------------------------ALTERA O TEMA--------------------------------------# 
+
+def alternar_tema():
+    global tema_atual
+
+    if tema_atual == "dark":
+        novo_tema = "light"
+    else:
+        novo_tema = "dark"
+
+    # Usa as configurações já salvas, sem ler os campos da tela
+    dados_para_salvar = {
+        **configuracoes,
+        "tema": novo_tema,
+    }
+
+    try:
+        os.makedirs(pasta_configuracoes, exist_ok=True)
+
+        with open(caminho_configuracoes, "w", encoding="utf-8") as arquivo:
+            json.dump(
+                dados_para_salvar,
+                arquivo,
+                ensure_ascii=False,
+                indent=4,
+            )
+
+    except OSError as erro:
+        print(f"Erro ao salvar o tema: {erro}")
+        mostrar_aviso("Não foi possível salvar o tema.")
+        return
+
+    tema_atual = novo_tema
+    ctk.set_appearance_mode(tema_atual)
 
 #---------------------------------INTERFACE VISUAL--------------------------------------# 
 
@@ -381,8 +566,8 @@ def criar_interface():
 
     janela.withdraw()  # esconde a janela
 
-    # Altera a cor do fundo
-    janela.configure(fg_color="#1E1E1E") 
+    # Altera a cor do fundo conforme o tema ativo
+    janela.configure(fg_color=CORES["fundo_janela"])
 
     janela.title("Cateno")
 
@@ -435,9 +620,16 @@ def criar_interface():
     #---------------------------------CAMPO TEXTO--------------------------------------#
 
     # Campo que permite várias linhas
-    campo_texto = ctk.CTkTextbox(tela_principal, width=305, height= 55, state='disabled', 
-                                 fg_color="#393939", text_color="#F1FFBE", corner_radius=8, # backup fg_color light #e0e6ed  text 2F5600'
-                                font=("Consolas", 13))
+    campo_texto = ctk.CTkTextbox(
+        tela_principal,
+        width=305,
+        height=55,
+        state="disabled",
+        fg_color=CORES["fundo_previa"],
+        text_color=CORES["texto_previa"],
+        corner_radius=8,
+        font=("Consolas", 13),
+    )
     campo_texto.pack(pady=(15, 0), padx=10) # pack () posiciona o elemento na tela, posiciona um embaixo do outro. pady é o espaço (padding) vertical 
       
     #---------------------------------BOTÕES INFERIORES--------------------------------------#
@@ -447,32 +639,53 @@ def criar_interface():
     frame_botoes.pack(pady=(15, 5))
 
     # Botão 1: Colar
-    btn_colar = ctk.CTkButton(frame_botoes, text="Colar", width=95, height=28, corner_radius=8,
-                              font=("Inter SemiBold", 13),
-                              fg_color="#77bcc1", text_color="#ffffff", hover_color="#669da0", # hover_color define a cor quando passa o mouse
-                              command=processar_e_formatar)
+    btn_colar = ctk.CTkButton(
+        frame_botoes,
+        text="Colar",
+        width=95,
+        height=28,
+        corner_radius=8,
+        font=("Inter SemiBold", 13),
+        fg_color=CORES["colar"],
+        text_color=CORES["texto_botao"],
+        hover_color=CORES["colar_hover"],
+        command=processar_e_formatar,
+    )
     btn_colar.pack(side="left", padx=5)
 
     # Botão 2: Copiar 
-    btn_copiar = ctk.CTkButton(frame_botoes, text="Copiar", width=95, height=28, corner_radius=8,
-                               font=("Inter SemiBold", 13),
-                               fg_color="#9db64a", text_color="#ffffff", hover_color="#839738",  # text color fff8ec # fg color aac552
-                               command=copiar_para_clipboard)
-    btn_copiar.pack(side="left",padx=5)
+    btn_copiar = ctk.CTkButton(
+        frame_botoes,
+        text="Copiar",
+        width=95,
+        height=28,
+        corner_radius=8,
+        font=("Inter SemiBold", 13),
+        fg_color=CORES["acao_verde"],
+        text_color=CORES["texto_botao"],
+        hover_color=CORES["acao_verde_hover"],
+        command=copiar_para_clipboard,
+    )
+    btn_copiar.pack(side="left", padx=5)
 
     # Botão 3: Limpar
-    btn_limpar = ctk.CTkButton(frame_botoes, text="Limpar", width=95, height=28, corner_radius=8,
-                               font=("Inter SemiBold", 13),
-                               fg_color="#f4713d", text_color="#ffffff", hover_color="#d06034",
-                               command=limpar_tudo)
+    btn_limpar = ctk.CTkButton(
+        frame_botoes,
+        text="Limpar",
+        width=95,
+        height=28,
+        corner_radius=8,
+        font=("Inter SemiBold", 13),
+        fg_color=CORES["limpar"],
+        text_color=CORES["texto_botao"],
+        hover_color=CORES["limpar_hover"],
+        command=limpar_tudo,
+    )
     btn_limpar.pack(side="left", padx=5)
 
     # Acesso as configurações na tela principal
 
-# Desenha uma engrenagem em uma imagem transparente
-    imagem_engrenagem = Image.new("RGBA", (80, 80), (0, 0, 0, 0))
-    desenho_engrenagem = ImageDraw.Draw(imagem_engrenagem)
-
+# Calcula os pontos do desenho uma única vez
     pontos_engrenagem = []
 
     for indice in range(32):
@@ -488,21 +701,32 @@ def criar_interface():
 
         pontos_engrenagem.append((x, y))
 
-    desenho_engrenagem.polygon(
-        pontos_engrenagem,
-        fill="#A0A0A0",
-    )
+    # Desenha uma versão da engrenagem para cada tema
+    imagens_engrenagem = []
 
-    # Abre o círculo transparente no centro
-    desenho_engrenagem.ellipse(
-        (28, 28, 52, 52),
-        fill=(0, 0, 0, 0),
-    )
+    for cor in CORES["icone_configuracoes"]:
+        imagem_engrenagem = Image.new(
+            "RGBA",
+            (80, 80),
+            (0, 0, 0, 0),
+        )
+        desenho_engrenagem = ImageDraw.Draw(imagem_engrenagem)
 
-    # Tamanho engrenagem
+        desenho_engrenagem.polygon(
+            pontos_engrenagem,
+            fill=cor,
+        )
+
+        desenho_engrenagem.ellipse(
+            (28, 28, 52, 52),
+            fill=(0, 0, 0, 0),
+        )
+
+        imagens_engrenagem.append(imagem_engrenagem)
+
     icone_configuracoes = ctk.CTkImage(
-        light_image=imagem_engrenagem,
-        dark_image=imagem_engrenagem,
+        light_image=imagens_engrenagem[0],
+        dark_image=imagens_engrenagem[1],
         size=(16, 16),
     )
 
@@ -513,7 +737,7 @@ def criar_interface():
         width=30,
         height=28,
         fg_color="transparent",
-        hover_color="#393939",
+        hover_color=CORES["icone_hover"],
         command=abrir_configuracoes,
     )
     btn_configuracoes.pack(side="right", padx=(0, 23), pady=(0, 10))
@@ -533,8 +757,8 @@ def criar_interface():
         width=147,
         height=28,
         corner_radius=8,
-        fg_color="#393939",
-        text_color="#F1FFBE",
+        fg_color=CORES["fundo_titulo"],
+        text_color=CORES["texto_titulo"],
         font=("Inter", 13, "bold"),
     )
     titulo_configuracoes.pack(anchor="w", padx=15, pady=(15, 0))
@@ -550,6 +774,7 @@ def criar_interface():
         linha_separador_varchar,
         text="Separador",
         font=("Inter", 13),
+        text_color=CORES["texto_configuracao"],
         height=24,
     )
     rotulo_separador_varchar.pack(side="left")
@@ -561,6 +786,9 @@ def criar_interface():
         font=("Inter", 13),
         justify="center",
         corner_radius=8,
+        fg_color=CORES["fundo_separador"],
+        text_color=CORES["texto_separador"],
+        border_color=CORES["borda_separador"],
     )
     campo_separador_varchar.pack(side="right", padx=(0, 6))
 
@@ -581,6 +809,7 @@ def criar_interface():
         linha_espaco_varchar,
         text="Espaço após o separador",
         font=("Inter", 13),
+        text_color=CORES["texto_configuracao"],
         height=24,
     )
     rotulo_espaco_varchar.pack(side="left")
@@ -595,10 +824,10 @@ def criar_interface():
         corner_radius=9, # arredondamento
         border_width=0, # remove a borda que reduz a área colorida da barra, deixando-a com a altura completa
         button_length=0, # - remove o trecho reto adicional do marcador. As extremidades arredondadas continuam sendo desenhadas, formando um
-        fg_color="#555555", # cor da barra desligada                                        círculo — o zero não faz o marcador desaparecer.
-        progress_color="#9db64a", # cor da barra ligada
-        button_color="#F2F2F2", # cor do círculo
-        button_hover_color="#D9D9D9",
+        fg_color=CORES["switch_desligado"], # cor da barra desligada                           círculo — o zero não faz o marcador desaparecer.
+        progress_color=CORES["acao_verde"], # cor da barra ligada
+        button_color=CORES["switch_circulo"], # cor do círculo
+        button_hover_color=CORES["switch_circulo_hover"],
         onvalue=1, # valor de ligado
         offvalue=0, # valor de desligado
     )
@@ -621,6 +850,7 @@ def criar_interface():
         linha_parenteses_varchar,
         text="Envolver em parênteses",
         font=("Inter", 13),
+        text_color=CORES["texto_configuracao"],
         height=24,
     )
     rotulo_parenteses_varchar.pack(side="left")
@@ -635,10 +865,10 @@ def criar_interface():
         corner_radius=9,
         border_width=0,
         button_length=0,
-        fg_color="#555555",
-        progress_color="#9db64a",
-        button_color="#F2F2F2",
-        button_hover_color="#D9D9D9",
+        fg_color=CORES["switch_desligado"],
+        progress_color=CORES["acao_verde"],
+        button_color=CORES["switch_circulo"],
+        button_hover_color=CORES["switch_circulo_hover"],
         onvalue=1,
         offvalue=0,
     )
@@ -658,8 +888,8 @@ def criar_interface():
         width=147,
         height=28,
         corner_radius=8,
-        fg_color="#393939", # fundo do título
-        text_color="#F1FFBE",
+        fg_color=CORES["fundo_titulo"],
+        text_color=CORES["texto_titulo"],
         font=("Inter", 13, "bold"),
     )
     titulo_int.pack(anchor="w", padx=15, pady=(20, 0))
@@ -676,6 +906,7 @@ def criar_interface():
         linha_separador_int,
         text="Separador",
         font=("Inter", 13),
+        text_color=CORES["texto_configuracao"],
         height=24,
     )
     rotulo_separador_int.pack(side="left")
@@ -687,6 +918,9 @@ def criar_interface():
         font=("Inter", 13),
         justify="center",
         corner_radius=8,
+        fg_color=CORES["fundo_separador"],
+        text_color=CORES["texto_separador"],
+        border_color=CORES["borda_separador"],
     )
     campo_separador_int.pack(side="right", padx=(0, 6))
 
@@ -706,6 +940,7 @@ def criar_interface():
         linha_espaco_int,
         text="Espaço após o separador",
         font=("Inter", 13),
+        text_color=CORES["texto_configuracao"],
         height=24,
     )
     rotulo_espaco_int.pack(side="left")
@@ -720,10 +955,10 @@ def criar_interface():
         corner_radius=9,
         border_width=0,
         button_length=0,
-        fg_color="#555555",
-        progress_color="#9db64a",
-        button_color="#F2F2F2",
-        button_hover_color="#D9D9D9",
+        fg_color=CORES["switch_desligado"],
+        progress_color=CORES["acao_verde"],
+        button_color=CORES["switch_circulo"],
+        button_hover_color=CORES["switch_circulo_hover"],
         onvalue=1,
         offvalue=0,
     )
@@ -745,6 +980,7 @@ def criar_interface():
         linha_parenteses_int,
         text="Envolver em parênteses",
         font=("Inter", 13),
+        text_color=CORES["texto_configuracao"],
         height=24,
     )
     rotulo_parenteses_int.pack(side="left")
@@ -759,10 +995,10 @@ def criar_interface():
         corner_radius=9,
         border_width=0,
         button_length=0,
-        fg_color="#555555",
-        progress_color="#9db64a",
-        button_color="#F2F2F2",
-        button_hover_color="#D9D9D9",
+        fg_color=CORES["switch_desligado"],
+        progress_color=CORES["acao_verde"],
+        button_color=CORES["switch_circulo"],
+        button_hover_color=CORES["switch_circulo_hover"],
         onvalue=1,
         offvalue=0,
     )
@@ -790,6 +1026,19 @@ def criar_interface():
     rodape_configuracoes.grid_columnconfigure(1, weight=0)
     rodape_configuracoes.grid_columnconfigure(2, weight=1, uniform="laterais")
 
+    btn_tema = ctk.CTkButton(
+        rodape_configuracoes,
+        text="",
+        image=criar_icone_tema(),
+        width=40,
+        height=24,
+        border_spacing=0,
+        fg_color="transparent",
+        hover=False,
+        command=alternar_tema,
+    )
+    btn_tema.grid(row=0, column=0, sticky="w")
+
     # BOTAO SALVAR
 
     btn_salvar = ctk.CTkButton(
@@ -798,31 +1047,36 @@ def criar_interface():
         width=95,
         height=28,
         font=("Inter SemiBold", 13),
-        fg_color="#9db64a",
-        text_color="#ffffff",
-        hover_color="#839738",
+        fg_color=CORES["acao_verde"],
+        text_color=CORES["texto_botao"],
+        hover_color=CORES["acao_verde_hover"],
         command=salvar_configuracoes,
     )
     btn_salvar.grid(row=0, column=1)
 
-    # Desenha uma seta centralizada em uma imagem transparente
-    imagem_seta = Image.new("RGBA", (40, 40), (0, 0, 0, 0))
-    desenho_seta = ImageDraw.Draw(imagem_seta)
+    # Desenha uma versão da seta para cada tema
+    imagens_seta = []
 
-    desenho_seta.line(
-        [(32, 20), (8, 20)],
-        fill="#FFFFFF",
-        width=3,
-    )
-    desenho_seta.line(
-        [(18, 10), (8, 20), (18, 30)],
-        fill="#FFFFFF",
-        width=3,
-    )
+    for cor in CORES["icone_voltar"]:
+        imagem_seta = Image.new("RGBA", (40, 40), (0, 0, 0, 0))
+        desenho_seta = ImageDraw.Draw(imagem_seta)
+
+        desenho_seta.line(
+            [(32, 20), (8, 20)],
+            fill=cor,
+            width=3,
+        )
+        desenho_seta.line(
+            [(18, 10), (8, 20), (18, 30)],
+            fill=cor,
+            width=3,
+        )
+
+        imagens_seta.append(imagem_seta)
 
     icone_voltar = ctk.CTkImage(
-        light_image=imagem_seta,
-        dark_image=imagem_seta,
+        light_image=imagens_seta[0],
+        dark_image=imagens_seta[1],
         size=(20, 20),
     )
 
@@ -833,7 +1087,7 @@ def criar_interface():
         width=30,
         height=28,
         fg_color="transparent",
-        hover_color="#393939",
+        hover_color=CORES["icone_hover"],
         command=voltar_para_principal,
     )
     btn_voltar.grid(row=0, column=2, sticky="e", padx=(0, 6)) # sticky="e" posiciona a seta na extremidade direita de sua coluna
@@ -885,4 +1139,5 @@ def criar_interface():
     janela.mainloop()
 
 carregar_configuracoes()
+ctk.set_appearance_mode(tema_atual)
 criar_interface()
