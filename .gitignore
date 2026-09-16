@@ -2,8 +2,9 @@
 build/
 dist/
 
-# Arquivos de configuração do PyInstaller
+# Ignora outros arquivos .spec, mas mantém a configuração do Cateno
 *.spec
+!Cateno.spec
 
 # Pastas temporárias do Python
 __pycache__/

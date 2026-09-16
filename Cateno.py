@@ -72,13 +72,16 @@ caminho_configuracoes = os.path.join(  # aponta para o arquivo dentro dela
 )
 
 def obter_caminho(nome_arquivo):
-    # Pega o caminho correto do arquivo, seja rodando no VS Code ou no .exe final
-    try:
-        # Quando vira .exe, o PyInstaller guarda os arquivos nessa pasta termporária
+    # No executável, usa a pasta de recursos do PyInstaller
+    if hasattr(sys, "_MEIPASS"):
         caminho_base = sys._MEIPASS
-    except Exception:
-        # Quando tá sendo rodado no VS Code
-        caminho_base = os.path.abspath(".")
+    else:
+        # Ao executar o código, usa a pasta onde está Cateno.py
+        caminho_base = os.path.dirname(os.path.abspath(__file__)) # __file__ identifica o arquivo Python em execução.
+                                                                  # os.path.abspath() transforma esse caminho em absoluto.
+                                                                  # os.path.dirname() extrai a pasta que contém o arquivo.
+                                                                  # hasattr() verifica se o PyInstaller disponibilizou sua pasta de recursos.
+
     return os.path.join(caminho_base, nome_arquivo)
 
 try:
@@ -574,7 +577,7 @@ def criar_interface():
     # ICONE E FONTES EMBUTIDOS
 
     # 1. Carrega o item de forma segura para o .exe
-    caminho_icone = obter_caminho("cateno.ico" )
+    caminho_icone = obter_caminho("cateno.ico")
     janela.iconbitmap(caminho_icone)
 
     # 2. Carrega as fontes na memória RAM do usuário
@@ -783,7 +786,7 @@ def criar_interface():
         linha_separador_varchar,
         width=50,
         height=24,
-        font=("Inter", 13),
+        font=("Inter", 13, "bold"),
         justify="center",
         corner_radius=8,
         fg_color=CORES["fundo_separador"],
@@ -915,7 +918,7 @@ def criar_interface():
         linha_separador_int,
         width=50,
         height=24,
-        font=("Inter", 13),
+        font=("Inter", 13, "bold"),
         justify="center",
         corner_radius=8,
         fg_color=CORES["fundo_separador"],

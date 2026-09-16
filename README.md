@@ -16,9 +16,11 @@ As configurações são salvas no computador e recuperadas ao abrir o aplicativo
 
 ## 📦 Versão disponível
 
-O código-fonte deste repositório contém a versão 2 em desenvolvimento.
+O código-fonte deste repositório corresponde à versão 2 do Cateno.
 
-Os executáveis da Release `v1.0.0` correspondem à primeira versão e não incluem as novas configurações. A distribuição da versão 2 será disponibilizada após sua finalização.
+O instalador da versão `2.0.0` foi gerado e testado localmente. Sua publicação no GitHub Releases está em preparação.
+
+A Release `v1.0.0` permanece disponível como versão anterior, sem as novas configurações e a alternância de temas.
 
 ## 💡 Exemplos de uso
 
@@ -98,6 +100,7 @@ As preferências ficam em `%LOCALAPPDATA%\Cateno\configuracoes.json`, na pasta d
 - **JSON:** formato utilizado para armazenar as configurações, por meio do módulo `json` do Python.
 - **ctypes:** integração com recursos do Windows.
 - **PyInstaller:** empacotamento da versão executável.
+- **Inno Setup:** criação do instalador para Windows.
 
 ## 🎨 Aparência
 
@@ -114,29 +117,39 @@ A preferência é salva automaticamente e recuperada ao abrir o Cateno novamente
 
 Trocar o tema não salva as alterações pendentes nos campos de formatação. Essas alterações continuam dependendo do botão **Salvar**; a seta de voltar as descarta, mantendo o tema escolhido.
 
-## 📥 Distribuição da versão 2
+## 📥 Instalação da versão 2
 
-A distribuição da versão 2 está em preparação. O objetivo é disponibilizar um instalador para Windows, com acesso ao aplicativo por atalhos, sem exigir que o usuário extraia um ZIP ou organize manualmente os arquivos necessários.
+A versão 2 utiliza um instalador para Windows que inclui o aplicativo e suas dependências. Não é necessário instalar Python nem extrair arquivos ZIP.
 
-O instalador ainda não está disponível. Enquanto isso, a versão 2 pode ser executada pelo código-fonte, seguindo as instruções abaixo.
+Após a publicação da Release `v2.0.0`:
 
-## 🗂️ Versão 1
+1. Acesse [Releases](https://github.com/lucasseib/cateno/releases).
+2. Baixe o arquivo `Cateno-Setup-2.0.0.exe`.
+3. Execute o instalador e siga as instruções.
+4. Se desejar, marque a opção de criar um atalho na Área de Trabalho.
+5. Abra o Cateno pelo menu Iniciar ou pelo atalho criado.
 
-A Release `v1.0.0` oferece os pacotes separados **Dark Mode** e **Light Mode**. Esses arquivos correspondem à versão anterior e não incluem as configurações da versão 2.
+A instalação é feita apenas para o usuário atual, sem solicitar privilégios de administrador. Em computadores corporativos, políticas da empresa ainda podem exigir liberação do TI.
 
-## 🚀 Como baixar e usar a versão 1
+### Acesso pela barra de tarefas
 
-Se você não é desenvolvedor e quer apenas usar a ferramenta, disponibilizo duas pastas prontas: Cateno DM (Escuro) e Cateno LM (Claro).
+Abra o Cateno instalado, clique com o botão direito em seu ícone na barra de tarefas e selecione **Fixar na barra de tarefas**.
 
-1. Acesse a aba **Releases** no canto direito do GitHub.
-2. Baixe o arquivo .zip da versão que você preferir (DM ou LM).
-3. Extraia a pasta no seu computador (recomendável salvar na pasta Documentos).
-4. Entre na pasta extraída, clique com o botão direito no arquivo `Cateno.exe` e escolha **Fixar na barra de tarefas** para ter acesso rápido sempre que precisar!
+### Compartilhamento
 
-⚠️ **ATENÇÃO:** Nunca arraste o arquivo `Cateno.exe` para fora da sua pasta original! Ele precisa ficar sempre ao lado da pasta `_internal` para funcionar corretamente (ali está o "motor" do programa). 
-Se quiser um ícone na sua Área de Trabalho, clique com o botão direito no `Cateno.exe`, escolha **"Criar atalho"** e mova apenas o atalho criado.
+Para compartilhar o aplicativo, envie somente `Cateno-Setup-2.0.0.exe`. O instalador já contém os arquivos necessários.
 
-⚠️ **Aviso de Segurança do Windows:** Como este é um aplicativo independente e sem assinatura digital corporativa, o Windows (SmartScreen) exibirá uma tela azul dizendo *"O Windows protegeu o seu computador"* na primeira vez que você abri-lo. Isso é normal! Para prosseguir, clique em **"Mais informações"** e depois no botão **"Executar assim mesmo"**.
+Depois da instalação, o arquivo de instalação pode ser apagado. Os arquivos instalados são gerenciados pelo instalador e não precisam ser movidos.
+
+### Desinstalação
+
+Para remover o aplicativo, procure **Cateno** na lista de aplicativos instalados nas Configurações do Windows e escolha **Desinstalar**.
+
+As preferências em `%LOCALAPPDATA%\Cateno\configuracoes.json` são preservadas.
+
+## 🗂️ Versão anterior
+
+A Release `v1.0.0` permanece disponível com os pacotes separados Dark Mode e Light Mode. Ela não inclui as funcionalidades da versão 2.
 
 
 ## 💻 Como executar a versão 2 pelo código-fonte
