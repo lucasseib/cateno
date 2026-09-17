@@ -1,7 +1,7 @@
 [Setup]
 AppId=lucasseib.Cateno
 AppName=Cateno
-AppVersion=2.0.0
+AppVersion=2.0.1
 AppPublisher=Lucas Seib
 AppPublisherURL=https://github.com/lucasseib/cateno
 
@@ -11,7 +11,7 @@ DisableDirPage=yes
 DisableProgramGroupPage=yes
 
 OutputDir=dist\instalador
-OutputBaseFilename=Cateno-Setup-2.0.0
+OutputBaseFilename=Cateno-Setup-2.0.1
 SetupIconFile=cateno.ico
 UninstallDisplayIcon={app}\Cateno.exe
 

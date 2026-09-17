@@ -15,6 +15,7 @@ CORES = {
     "fundo_janela": ("#fcf7f1", "#1E1E1E"),
     "fundo_previa": ("#e0e6ed", "#393939"),
     "texto_previa": ("#2F5600", "#F1FFBE"),
+    "borda_previa_foco": ("#c1d3e9", "#575757"),
 
     "colar": ("#7fc7cc", "#77bcc1"),
     "colar_hover": ("#70b0b5", "#669da0"),
@@ -28,6 +29,8 @@ CORES = {
     "modo_inativo": ("#c8c8c8", "#8d8d8d"),
     "modo_inativo_hover": ("#a1a1a1", "#7b7b7b"),
 
+    "borda_modo_ativo": ("#aac550", "#b1cd54"),
+
     "texto_botao": ("#ffffff", "#ffffff"),
     "texto_modo_inativo": ("#fff9ef", "#fff9ef"),
 
@@ -35,7 +38,7 @@ CORES = {
     "texto_aviso": ("#ffffff", "#ffffff"),
 
     "fundo_titulo": ("#e0e6ed", "#393939"),
-    "texto_titulo": ("#2F5600", "#F1FFBE"),
+    "texto_titulo": ("#2F5600", "#F1F0F0"),
 
     "fundo_separador": ("#e0e6ed", "#343638"),
     "texto_separador": ("#2F5600", "#DCE4EE"),
@@ -97,6 +100,7 @@ ctk.set_default_color_theme("blue") # Tema padrão dos botões (não é consider
 # --- 1. Variáveis Globais
 # Ela fica fora das funções para que todas elas possam exergá-la
 resultado_completo_sql = ""
+itens_originais = [] # representa uma lista inicialmente vazia
 modo_atual = "varchar"  # O programa sempre vai abrir com o modo varchar ativado
 tema_atual = "dark"
 
@@ -122,12 +126,14 @@ def alterar_modo(novo_modo):
         btn_aba_varchar.configure(
             fg_color=CORES["acao_verde"],
             text_color=CORES["texto_botao"],
-            hover_color=CORES["acao_verde_hover"],
+            hover_color=CORES["acao_verde"],
+            border_color=CORES["borda_modo_ativo"],
         )
         btn_aba_virgula.configure(
             fg_color=CORES["modo_inativo"],
             text_color=CORES["texto_modo_inativo"],
             hover_color=CORES["modo_inativo_hover"],
+            border_color=CORES["fundo_janela"],
         )
 
     elif modo_atual == "virgula":
@@ -135,14 +141,16 @@ def alterar_modo(novo_modo):
             fg_color=CORES["modo_inativo"],
             text_color=CORES["texto_modo_inativo"],
             hover_color=CORES["modo_inativo_hover"],
+            border_color=CORES["fundo_janela"],
         )
         btn_aba_virgula.configure(
             fg_color=CORES["acao_verde"],
             text_color=CORES["texto_botao"],
-            hover_color=CORES["acao_verde_hover"],
+            hover_color=CORES["acao_verde"],
+            border_color=CORES["borda_modo_ativo"],
         )
 
-    limpar_tudo()
+    formatar_itens()
 
     print(f"O modo atual é: {modo_atual}")
 
@@ -184,7 +192,8 @@ def mostrar_aviso(mensagem):
 #---------------------------------COLAR E FORMATAR--------------------------------------#
 
 def processar_e_formatar():     
-    global resultado_completo_sql, modo_atual # informa que será usada a variável inicial
+    global itens_originais # informa que será usada a variável inicial
+
 
     # Pega o texto da área de transferência (clipboard)
     texto_bruto = pyperclip.paste()
@@ -203,13 +212,26 @@ def processar_e_formatar():
                                                                             # strip() remove espaços do inicio e do fim.
                                                                             # if linha.strip() só deixa avançar se tiver conteúdo.
 
+    itens_originais = itens_limpos.copy()
+
+    itens_originais = itens_limpos.copy()
+    formatar_itens()
+
+
+def formatar_itens():
+    global resultado_completo_sql
+
+    # Sem uma lista colada, não há nada para formatar
+    if not itens_originais:
+        return
+
     # 3 e 4. Verifica qual modo está ativo e aplica a formatação correspondente
     if modo_atual == "varchar":
         # REGRA 1: Com aspas simples
-        itens_formatados = [f"'{item}'" for item in itens_limpos]
+        itens_formatados = [f"'{item}'" for item in itens_originais]
     else:
         # REGRA 2: Sem aspas
-        itens_formatados = [f"{item}" for item in itens_limpos]
+        itens_formatados = itens_originais.copy()
 
     # Consulta as configurações do modo selecionado
     config_atual = configuracoes[modo_atual]
@@ -228,10 +250,10 @@ def processar_e_formatar():
         resultado_completo_sql = "(" + resultado_completo_sql + ")"
 
     # 5. Cria o PREVIEW (8 itens)
-    preview_itens = itens_formatados[:8]
+    preview_itens = itens_formatados[:10]
     resumo = separador.join(preview_itens)
 
-    if len (itens_formatados) > 8:
+    if len (itens_formatados) > 10:
         resumo += separador + "..." # Adiciona as reticências quando tiver mais de 8 códigos
 
     if config_atual["fechar_parenteses"]:
@@ -245,6 +267,28 @@ def processar_e_formatar():
 
     campo_texto.configure(state='disabled') # Tranca o campo novamente
 
+def atualizar_selecao_previa(event):
+    componente = event.widget
+
+    # Verifica se o clique ocorreu na prévia ou dentro dela
+    while componente is not None:
+        if componente == campo_texto:
+            campo_texto.configure(
+                border_width=2,
+                border_color=CORES["borda_previa_foco"],
+            )
+            return
+
+        componente = getattr(componente, "master", None)
+
+    # O clique ocorreu fora da prévia
+    campo_texto.configure(border_width=0)
+
+
+def colar_na_previa(event):
+    processar_e_formatar()
+    return "break"
+
 #----------------------------------COPIAR--------------------------------------#
 
 def copiar_para_clipboard():
@@ -257,8 +301,9 @@ def copiar_para_clipboard():
 #---------------------------------LIMPAR TUDO--------------------------------------#
 
 def limpar_tudo():
-    global resultado_completo_sql
+    global resultado_completo_sql, itens_originais
     resultado_completo_sql = ""
+    itens_originais = []
 
     campo_texto.configure(state='normal') # Destranca o campo para o Python poder apagar
 
@@ -607,18 +652,35 @@ def criar_interface():
 
 #---------------------------------ABAS SUPERIORES--------------------------------------#
   
-    frame_abas = ctk.CTkFrame(tela_principal, fg_color="transparent") # transparent faz o frame sumir e misturar com o fundo da janela
-    frame_abas.pack(pady=(15, 0)) # significa: (cima, baixo)
+    frame_abas = ctk.CTkFrame(
+        tela_principal,
+        fg_color="transparent",
+    )
+    frame_abas.pack(pady=(13, 0))
 
-    btn_aba_varchar = ctk.CTkButton(frame_abas, text="Aspas simples", width=147, height=28, corner_radius=8,
-                                    font=("Inter SemiBold", 13),
-                                    command=lambda: alterar_modo("varchar"))   # corner_radius é o nivel de arredondamento das bordas
-    btn_aba_varchar.pack(side="left", padx=(11, 5))
+    btn_aba_varchar = ctk.CTkButton(
+        frame_abas,
+        text="Aspas simples",
+        width=152,
+        height=32,
+        corner_radius=10,
+        border_width=2,
+        font=("Inter SemiBold", 13),
+        command=lambda: alterar_modo("varchar"),
+    )
+    btn_aba_varchar.pack(side="left", padx=(9, 3))
 
-    btn_aba_virgula = ctk.CTkButton(frame_abas, text="Sem aspas", width=147, height=28, corner_radius=8,
-                                    font=("Inter SemiBold", 13),
-                                    command=lambda: alterar_modo("virgula"))
-    btn_aba_virgula.pack(side="left", padx=(5, 11))
+    btn_aba_virgula = ctk.CTkButton(
+        frame_abas,
+        text="Sem aspas",
+        width=152,
+        height=32,
+        corner_radius=10,
+        border_width=2,
+        font=("Inter SemiBold", 13),
+        command=lambda: alterar_modo("virgula"),
+    )
+    btn_aba_virgula.pack(side="left", padx=(3, 9))
 
     #---------------------------------CAMPO TEXTO--------------------------------------#
 
@@ -633,8 +695,24 @@ def criar_interface():
         corner_radius=8,
         font=("Consolas", 13),
     )
-    campo_texto.pack(pady=(15, 0), padx=10) # pack () posiciona o elemento na tela, posiciona um embaixo do outro. pady é o espaço (padding) vertical 
-      
+    campo_texto.pack(pady=(13, 0), padx=10) # pack () posiciona o elemento na tela, posiciona um embaixo do outro. pady é o espaço (padding) vertical 
+
+    # Direciona o foco do teclado para a prévia ao clicar nela
+    campo_texto.bind(
+        "<Button-1>",
+        lambda event: campo_texto.focus_set(),
+        add="+",
+    )
+
+    # Processa a solicitação de colagem, incluindo Ctrl+V
+    campo_texto.bind(
+        "<<Paste>>",
+        colar_na_previa,
+        add="+",
+    )
+
+
+
     #---------------------------------BOTÕES INFERIORES--------------------------------------#
 
     # Organiza os botões lado a lado
@@ -1100,6 +1178,12 @@ def criar_interface():
     janela.bind(
         "<Button-1>",
         ajustar_foco_configuracoes,
+        add="+",
+    )
+
+    janela.bind(
+        "<Button-1>",
+        atualizar_selecao_previa,
         add="+",
     )
 

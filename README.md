@@ -16,15 +16,17 @@ As configurações são salvas no computador e recuperadas ao abrir o aplicativo
 
 ## 📦 Versão disponível
 
-A versão **2.0.0** está disponível com instalador para Windows.
+A versão **2.0.1** está disponível com instalador para Windows.
 
-Acesse a [Release v2.0.0](https://github.com/lucasseib/cateno/releases/tag/v2.0.0) e baixe **Cateno-Setup-2.0.0.exe** na seção **Assets**.
+Acesse a [Release v2.0.1](https://github.com/lucasseib/cateno/releases/tag/v2.0.1) e baixe **Cateno-Setup-2.0.1.exe** na seção **Assets**.
 
 A Release `v1.0.0` permanece disponível como versão anterior.
 
 ## 💡 Exemplos de uso
 
-Copie uma lista com um valor por linha, escolha o modo e clique em **Colar**. O Cateno formata os valores e exibe uma prévia. Clique em **Copiar** para obter o resultado completo.
+Copie uma lista com um valor por linha e escolha o modo de formatação. Para inserir os valores, clique em **Colar** ou clique no campo de prévia e pressione **Ctrl+V**. O Cateno formata os valores e exibe uma prévia de até 10 itens. Clique em **Copiar** para obter o resultado completo.
+
+Você pode alternar entre **Aspas simples** e **Sem aspas** após colar: o resultado será atualizado conforme as configurações do modo escolhido, mantendo os valores originais.
 
 **Lista copiada:**
 
@@ -68,7 +70,7 @@ Clique em **Salvar**. Ao colar novamente a lista, o resultado será:
 
 Cada modo mantém suas próprias configurações. A seta de voltar descarta as alterações que ainda não foram salvas.
 
-> A prévia mostra até oito valores. O botão **Copiar** copia todos os valores formatados, mesmo quando a prévia termina em reticências.
+> A prévia mostra até 10 valores. O botão **Copiar** copia todos os valores formatados, mesmo quando a prévia termina em reticências.
 
 
 ## ✨ Funcionalidades
@@ -82,7 +84,10 @@ Cada modo mantém suas próprias configurações. A seta de voltar descarta as a
   - Espaço opcional após o separador.
   - Parênteses opcionais ao redor do resultado.
 - Gravação das preferências em JSON, com recuperação ao iniciar.
-- Prévia dos primeiros oito valores e cópia do resultado completo.
+- Inserção da lista pelo botão Colar ou por Ctrl+V no campo de prévia.
+- Troca de modo com reformatação da lista, preservando os valores originais.
+- Contorno para destacar o modo selecionado e indicação visual ao clicar na prévia.
+- Prévia dos primeiros 10 valores e cópia do resultado completo.
 - Botão para limpar a prévia e o resultado.
 - Interface com temas claro e escuro, alternância imediata e preferência salva automaticamente.
 - Abertura centralizada e minimização ao perder o foco.
@@ -95,7 +100,7 @@ As preferências ficam em `%LOCALAPPDATA%\Cateno\configuracoes.json`, na pasta d
 
 - **Python 3:** lógica e funcionamento do aplicativo.
 - **CustomTkinter e Tkinter:** interface gráfica e eventos.
-- **Pyperclip:** leitura e escrita na área de transferência.
+- **Pyperclip:** leitura e escrita na área de transferência..1
 - **Pillow:** desenho dos ícones de navegação.
 - **JSON:** formato utilizado para armazenar as configurações, por meio do módulo `json` do Python.
 - **ctypes:** integração com recursos do Windows.
@@ -123,8 +128,8 @@ A versão 2 utiliza um instalador para Windows que inclui o aplicativo e suas de
 
 Para instalar:
 
-1. Acesse a [Release v2.0.0](https://github.com/lucasseib/cateno/releases/tag/v2.0.0).
-2. Baixe o arquivo `Cateno-Setup-2.0.0.exe`.
+1. Acesse a [Release v2.0.1](https://github.com/lucasseib/cateno/releases/tag/v2.0.1).
+2. Baixe o arquivo `Cateno-Setup-2.0.1.exe`.
 3. Execute o instalador e siga as instruções.
 4. Se desejar, marque a opção de criar um atalho na Área de Trabalho.
 5. Abra o Cateno pelo menu Iniciar ou pelo atalho criado.
@@ -137,7 +142,7 @@ Abra o Cateno instalado, clique com o botão direito em seu ícone na barra de t
 
 ### Compartilhamento
 
-Para compartilhar o aplicativo, envie somente `Cateno-Setup-2.0.0.exe`. O instalador já contém os arquivos necessários.
+Para compartilhar o aplicativo, envie somente `Cateno-Setup-2.0.1.exe`. O instalador já contém os arquivos necessários.
 
 Depois da instalação, o arquivo de instalação pode ser apagado. Os arquivos instalados são gerenciados pelo instalador e não precisam ser movidos.
 
